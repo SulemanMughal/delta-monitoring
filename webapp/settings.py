@@ -233,7 +233,8 @@ NETWORK_INTERFACE_LABEL=config('NETWORK_INTERFACE_LABEL')
 
 
 
-PCAP_DIR = BASE_DIR.parent / 'media' / 'pcap_files'
+# PCAP_DIR = BASE_DIR.parent / 'media' / 'pcap_files'
+PCAP_DIR = BASE_DIR.parent / 'media' / 'documents'
 
 # Pagination Parameters
 PAGE_SIZE=config('PAGE_SIZE', cast=int)

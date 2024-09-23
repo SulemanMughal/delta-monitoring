@@ -51,11 +51,14 @@
                       {% include 'master_app/messages.html' %}
                         {% csrf_token %}
                         <div class="">
-                          <input type="text" class="form-control " id="exampleInputEmail1" aria-describedby="emailHelp" required="" name="username" autocomplete="off" placeholder="Username" tabindex="1" autofocus="on">
+                          <input type="hidden" class="form-control " id="exampleInputEmail1" aria-describedby="emailHelp" required="" name="username" autocomplete="off" placeholder="Username" tabindex="1" autofocus="on" value="{{request.user.username}}">
+                          {% comment %}
                           <div class="invalid-feedback">
                             Please enter a valid username
                           </div>
+                          {% endcomment %}
                         </div>
+                        {% comment %}
                         <div class="">
                           <input type="number" class="form-control mt-1" id="port_number" required="" name="port" autocomplete="off" placeholder="Port Number to Observe" tabindex="2">
                           
@@ -63,6 +66,7 @@
                             Please enter a port number
                           </div>
                         </div>
+                        {% endcomment %}
 
                         <div class="">
                           <div class="fallback ">

@@ -4,18 +4,18 @@ from django.db import models
 import uuid
 
 
-# class Document(models.Model):
-#     name = models.CharField(max_length=50, blank=False, null=False, unique=True, default="")
-#     document = models.FileField(upload_to='documents/')
-#     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+class Document(models.Model):
+    name = models.CharField(max_length=50, blank=False, null=False,  default="")
+    document = models.FileField(upload_to='documents/')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     
 
 
-#     class Meta:
-#         ordering = ['-created_at']
+    class Meta:
+        ordering = ['-created_at']
 
-#     def __str__(self):
-#         return "{}".format(self.name)
+    def __str__(self):
+        return "{}".format(self.name)
 
 
 

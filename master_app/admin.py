@@ -10,7 +10,7 @@ from .models import *
 from .actions import export_selected_objects
 
 
-# admin.site.register(Document)
+admin.site.register(Document)
 # admin.site.register(Packets)
 
 

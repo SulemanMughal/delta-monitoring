@@ -3,6 +3,7 @@
 import os
 import datetime
 import json
+import magic
 import traceback
 import subprocess
 from io import BytesIO
@@ -30,7 +31,7 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
-    # Document,
+    Document,
     Packets,
     External
 )
@@ -224,13 +225,18 @@ def document_upload_view(request):
         uploaded_document = Document.objects.create(
             document=myFile, 
             name=request.POST.get('name', myFile.name),
-            observe_port=request.POST.get('port', 80),
+            # observe_port=request.POST.get('port', 80),
         )
         uploaded_document.save()
         # print("asdasd")
         try:
             # print(uploaded_document.document.path)
-            packets = read_pcap_file(uploaded_document.document.path , target_port=int(uploaded_document.observe_port))
+            # packets = read_pcap_file(uploaded_document.document.path , target_port=int(uploaded_document.observe_port))
+            # print("file type : " + str(magic.from_file(uploaded_document.document.path)))
+            if "pcap" not in str(magic.from_file(uploaded_document.document.path)):
+                messages.success(request, "Please upload pcap file.")
+                return redirect("document_upload_url")
+            packets = read_pcap_file(uploaded_document.document.path )
             monitoring.save_packets(packets)
             # for packet in packets:
             #     x = read_payload(packet)
@@ -303,6 +309,7 @@ def document_upload_view(request):
             
             
         except Exception as e:
+            traceback.print_exc()
             print(e)
 
         # print("uploaded")
@@ -313,7 +320,7 @@ def document_upload_view(request):
         # return JsonResponse({'document':document_json})
     template_name = "master_app/document_upload.html"
     context = {
-
+        "upload_section" : True
     }
     return render(request, template_name, context)
 
@@ -383,6 +390,7 @@ def document_details_json(request, document_id):
 def document_list_view(request):
     template_name = "master_app/document_list.html"
     documents = Document.objects.all()
+    # print(documents)
     context = {
         "documents": documents
     }
@@ -905,6 +913,34 @@ def pcap_files_list(request):
 
 
 
+# # @login_required
+# def pcap_files_list_view_json(request):
+#     try:
+#         files_list = os.listdir(settings.PCAP_DIR)
+#         # Exclude "dummy.pcap" from the files_list
+#         # files_list = [file for file in files_list if file != "dummy.pcap"]
+#         files_list = [file for file in files_list if (file != "dummy.pcap" and not file.endswith(".txt") and file != "tmp")  ]
+        
+        
+#         # print(files_list)
+#         # 
+#         files_list = [{
+#             "name" : file.replace(".pcap", "").replace("_", "."),
+#             "size" : os.path.getsize(os.path.join(settings.PCAP_DIR, file)),
+#             "download_link" : "/media/pcap_files/" + file,
+#             "details" : "/files/analyze/" + file.replace(".pcap", "")
+#         } for file in files_list ]
+#         # print(files_list)
+#         files_list = sorted(files_list, key = lambda i: i['size'], reverse=True)
+#         files_list = json.dumps(list(files_list), cls=DjangoJSONEncoder)
+#         return JsonResponse({'files_list':files_list})
+#     except :
+#         traceback.print_exc()
+#         files_list = None
+#         return JsonResponse({'files_list':files_list})
+    
+
+
 # @login_required
 def pcap_files_list_view_json(request):
     try:
@@ -917,7 +953,7 @@ def pcap_files_list_view_json(request):
         # print(files_list)
         # 
         files_list = [{
-            "name" : file.replace(".pcap", "").replace("_", "."),
+            "name" : file,
             "size" : os.path.getsize(os.path.join(settings.PCAP_DIR, file)),
             "download_link" : "/media/pcap_files/" + file,
             "details" : "/files/analyze/" + file.replace(".pcap", "")
@@ -930,7 +966,7 @@ def pcap_files_list_view_json(request):
         traceback.print_exc()
         files_list = None
         return JsonResponse({'files_list':files_list})
-    
+     
 
 # User Executed Commands Views
 def commands_view(request):
@@ -1130,6 +1166,8 @@ def analyze_pcap_file_os_json(request, filename):
         pcap_name = filename
         fn = settings.PCAP_DIR / f"{pcap_name}.pcap"
         dst = settings.PCAP_DIR / "tmp" / f"{pcap_name}.pcap"
+        # print(fn)
+        # print(dst)
         shutil.copyfile(fn, dst)
         output_filepath = settings.PCAP_DIR / "tmp" / f"output.txt"
         command = ["p0f" , "-r" , dst , "-o" , f"{output_filepath}"]
@@ -1237,6 +1275,9 @@ def user_agents(request, filename):
             pcap_name = filename
             fn = settings.PCAP_DIR / f"{pcap_name}.pcap"
             dst = settings.PCAP_DIR / "tmp" / f"{pcap_name}.pcap"
+            # Create the parent directory of dst if it does not exist
+            dst_parent_dir = dst.parent
+            dst_parent_dir.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(fn, dst)
             output_filepath = settings.PCAP_DIR / "tmp" / f"output_user_agents.txt"
             myoutput = open(output_filepath, 'w')

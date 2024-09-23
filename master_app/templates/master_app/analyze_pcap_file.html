@@ -301,6 +301,7 @@ div.tree a{
           console.log("error");
           // console.log(error_data);
           // $("div#loader").hide();
+          $("div#loader").hide();
         },
         complete:function(data){
           $("div#loader").hide();
@@ -369,9 +370,11 @@ div.tree a{
           console.log("error");
           // console.log(error_data);
           // $("div#loader").hide();
+          $("div#loader").hide();
         },
         complete:function(data){
           // $("div#loader").hide();
+          $("div#loader").hide();
         }
       });
     }
@@ -419,8 +422,12 @@ div.tree a{
         },
         error: function (error_data) {
           console.log("error");
+          $("div#loader").hide();
           // $("div#loader").hide();
         },
+        complete : function(){
+          $("div#loader").hide();
+        }
       });
     }
 
@@ -579,6 +586,7 @@ chart.render();
         },
         error: function (error_data) {
           console.log("error");
+          $("div#loader").hide();
           // console.log(error_data);
           // $("div#loader").hide();
         },
@@ -602,8 +610,8 @@ chart.render();
     
       // delay for 2 seconds
       // setTimeout(function() {
-        // fetchMacDetails();
-        // fetchCommonSrcIp();
+      //   fetchMacDetails();
+      //   fetchCommonSrcIp();
       // }, 2000);
       
     });

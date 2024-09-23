@@ -1,10 +1,18 @@
 <ul class="nav justify-content-center mt-3 mb-4" id="top_nav_bar">
-    <li class="nav-item  {% if live_section  %} active {% endif %}">
-      <a class="nav-link  fw-bolder"  href="{% url 'live_url' %}">Monitoring</a>
+    <li class="nav-item  {% if upload_section  %} active {% endif %}">
+      <a class="nav-link  fw-bolder"  href="{% url 'document_upload_url' %}">File Upload</a>
     </li>
     <li class="nav-item   {% if files_list %} active {% endif %} ">
       <a class="nav-link fw-bolder" href="{% url 'pcap_files_list' %}">Files</a>
     </li>
+    {% comment %}
+    <li class="nav-item  {% if live_section  %} active {% endif %}"></li>
+      <a class="nav-link  fw-bolder"  href="{% url 'live_url' %}">Monitoring</a>
+    </li>
+
+    
+    
+    
     <li class="nav-item  {% if dashboard_section %} active {% endif %}  ">
       <a class="nav-link fw-bolder" href="{% url 'dashboard_url' %}">Dashboard</a>
     </li>
@@ -14,6 +22,7 @@
     <li class="nav-item {% if commands_section %} active {% endif %}  d-none">
       <a class="nav-link fw-bolder" href="{% url 'commands_url' %}">Commands</a>
     </li>
+    {% endcomment %}
     <li class="nav-item dropdown">
       <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Actions</a>
       <ul class="dropdown-menu  bg-color-blue-nav py-0">
@@ -26,10 +35,12 @@
           <i class="bi bi-box-arrow-right"></i>
               <span>Sign Out</span>
         </a></li>
+        {% comment %}
         <li class="p-0 m-0 "><a class="dropdown-item  d-flex align-items-center text-danger p-4  justify-content-center" 
           href="{% url 'logs_view_url' %}">
           Log Analysis
         </a></li>
+        {% endcomment %}
       </ul>
     </li>
   </ul>
