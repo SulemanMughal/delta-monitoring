@@ -185,7 +185,7 @@ def Dashboard(request):
     # dst port with highest number of packets
     dst_port_highes_packet_sent = Packets.objects.values('dst_port').annotate(count=Count('dst_port')).order_by('-count').first()
 
-    # print(dst_port_highes_packet_sent)s
+    # print(dst_port_highes_packet_sent)
 
     # print(src_port_highes_packet_sent)
 
@@ -196,10 +196,10 @@ def Dashboard(request):
         # "initial_documents_json" : initial_documents_json,
         "initial_packets_json" : initial_packets_json,
         "highest_packets_sent" : highest_packets_sent,
-        "src_port_highes_packet_sent_label" : src_port_highes_packet_sent.get('src_port', None),
-        "src_port_highes_packet_sent_value" : src_port_highes_packet_sent.get('count', None),
-        "dst_port_highes_packet_sent_label" : dst_port_highes_packet_sent.get('dst_port', None),
-        "dst_port_highes_packet_sent_value" : dst_port_highes_packet_sent.get('count', None),
+        "src_port_highes_packet_sent_label" : src_port_highes_packet_sent['src_port'] if src_port_highes_packet_sent else 0,
+        "src_port_highes_packet_sent_value" : src_port_highes_packet_sent['count'] if src_port_highes_packet_sent else 0,
+        "dst_port_highes_packet_sent_label" : dst_port_highes_packet_sent['dst_port'] if dst_port_highes_packet_sent else 0,
+        "dst_port_highes_packet_sent_value" : dst_port_highes_packet_sent['count'] if dst_port_highes_packet_sent else 0,
         # "highest_packets_sent" : highest_packets_sent,
         "highest_packets_received" : highest_packets_received,
         "top_ten_src_prs" : top_ten_src_prs,
