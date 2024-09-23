@@ -1,0 +1,377 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search{% endblock %}
+
+
+{% block styles %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'assets/vendor/gridjs/mermaid.min.css' %}" />
+
+<link rel="stylesheet" href="{% static  'assets/vendor/aos/aos.css' %}" />
+<link rel="stylesheet" href="{% static  'assets/vendor/izitoast/iziToast.min.css' %}" />
+
+<style>
+
+  body {
+      margin: 0;
+      font-family: neue-haas-unica,sans-serif;
+      font-size: .875rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #a4b1cd;
+      text-align: left;
+      background-color: #141d2b;
+  }
+  </style>
+
+
+
+<link
+rel="stylesheet"
+href="{% static 'assets/vendor/selectize/selectize.default.min.css' %}"
+crossorigin="anonymous"
+referrerpolicy="no-referrer"
+/>
+
+
+
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Files</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard_url' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Search</li>
+            {% if search_query %}
+                <li class="breadcrumb-item active">{{ search_query }}</li>
+            {% endif %}
+          </ol>
+        </nav>
+      </div>
+      <section class="section">
+        <div class="container-fluid">
+          <div class="row mb-3">
+            <div class="col-12">
+              <form action="{% url 'search_url' %}" method="GET" id="search_form" class="g-3 needs-validation"
+              data-aos="fade-left"
+              data-aos-offset="0"
+              data-aos-delay="50"
+              data-aos-duration="1000"
+              data-aos-easing="ease-in-out"
+              data-aos-mirror="true"
+              data-aos-once="true"
+              data-aos-anchor-placement="top-center"
+              >
+                <input type="text" placeholder="Search " name="query" value="{{ search_query|default:'' }}" class="form-control  search" style="height: 40px !important;" autocomplete="off" id="query" required="">
+                <div class="invalid-feedback">
+                    Please enter a search term.
+                  </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- different filters -->
+          <div class="row mb-3 ">
+            <!-- Teams Filter -->
+            <div class="col-4">
+              <select id="select-tools-teams" multiple placeholder="Filter Teams"></select>
+            </div>
+            <!-- User Filter -->
+            <div class="col-4">
+              <select id="select-tools-users" multiple placeholder="Filter Users"></select>
+            </div>
+            <!-- Challenges Filter -->
+            <div class="col-4">
+              <select id="select-tools-challenges" multiple placeholder="Filter Challenges"></select>
+            </div>
+          </div>  
+
+
+          <!-- apex chart -->
+          <div class="row mb-3 ">
+            <div class="col-12">
+                <div class="card " 
+                    data-aos="fade-down"
+                    data-aos-offset="0"
+                    data-aos-delay="50"
+                    data-aos-duration="1000"
+                    data-aos-easing="ease-in-out"
+                    data-aos-mirror="true"
+                    data-aos-once="true"
+                    data-aos-anchor-placement="top-center"
+                >
+                    <div class="card-body bg-transparent">
+                        <div id="line_chart"></div>
+                    </div>  
+                </div>
+            </div>
+          </div>  
+
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card bg-transparent">
+                        <div class="card-body py-4 bg-transparent">
+                            
+                            <div id="table"></div>
+                        </div>  
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+      </section>
+
+      
+      {{ search_query|json_script:"search_query" }}
+</main> 
+
+
+
+{%  endblock %}
+
+
+{% block scripts %}
+
+<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="{% static  'assets/vendor/gridjs/gridjs.production.min.js' %}"></script>
+<script src="{% static  'assets/js/utils.js' %}"></script>
+
+<script src="{% static 'assets/js/data.js' %}?limit='sadadsas'"></script>
+
+<script src="{% static 'assets/vendor/selectize/selectize.min.js' %}" ></script>
+
+
+<script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
+<script src="{% static 'assets/vendor/izitoast/iziToast.min.js' %}"></script>
+
+
+
+
+<script>
+  AOS.init();
+
+  // target url to fetch data for chart 
+  const chart_url = "{% url 'search_chart_json_url' %}";
+
+  // console.debug(chart_url)
+
+</script>
+
+
+<!-- <script>
+  console.debug(teams_data);
+</script> -->
+
+
+
+
+<script>
+
+  // Initialize Team Filter
+    var $selectTeams = $('#select-tools-teams').selectize({
+    maxItems: null,
+    valueField: 'ip',
+    labelField: 'title',
+    searchField: 'title',
+    options: teams_list,
+    create: false
+  });
+  var controlTeams = $selectTeams[0].selectize;
+  
+  
+  // Initialize User Filter
+    var $selectUsers = $('#select-tools-users').selectize({
+    maxItems: null,
+    valueField: 'ip',
+    labelField: 'title',
+    searchField: 'title',
+    options: users_data,
+    create: false
+  });
+  var controlUsers = $selectUsers[0].selectize;
+  
+  
+  // Initialize Challenges Filter
+    var $selectChallenges = $('#select-tools-challenges').selectize({
+    maxItems: null,
+    valueField: 'ip',
+    labelField: 'title',
+    searchField: 'title',
+    options: challenges,
+    create: false
+  });
+  var controlChallenges = $selectChallenges[0].selectize;
+
+
+  
+  </script>
+  
+
+
+<script>
+const query = (JSON.parse(document.getElementById('search_query').textContent));
+    new gridjs.Grid({
+  columns: [ "ID", 'Destination IP', 'Source IP', {
+    name : "Payload",
+    'width': '50%'
+  }],
+  style : {
+    'table': {
+      'width': '100% !important'
+    }
+  }
+  ,
+  search: false,
+	sort: true,
+	pagination: {
+    limit: 20,
+    server: {
+      url: (prev, page, limit) => `${prev}?limit=${limit}&offset=${page * limit}&query=${query}`
+    }
+  },
+  server: {
+    url: '/search/json',
+    then: data => JSON.parse(data.initial_packets).map(packet => [ packet.id, packet.destination_ip, packet.source_ip, packet.payload ]),
+    total: data => data.count
+  },
+	className: {
+    table: 'table-body'
+  },
+	language: {
+    'search': {
+      'placeholder': 'Searching ...'
+    }
+  }
+}).render(document.getElementById("table"))
+
+</script>
+
+
+
+
+<!-- search form submission -->
+
+<script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+(function () {
+  'use strict'
+
+  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+  var forms = document.querySelectorAll('.needs-validation')
+
+  // Loop over them and prevent submission
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    })
+})();
+</script>
+
+<script>
+
+function showNotification(query){
+    return iziToast.show({
+    theme: 'dark',
+    icon: '<i></i>',
+    title: 'Searching for ...',
+    message:`${query}`,
+    position: 'topCenter', // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter
+    progressBarColor: 'rgb(0, 255, 184)',
+    
+    onOpening: function(instance, toast){
+        console.info('callback abriu!');
+    },
+    onClosing: function(instance, toast, closedBy){
+        console.info('closedBy: ' + closedBy); // tells if it was closed by 'drag' or 'button'
+    }
+});
+}
+
+</script>
+
+
+<script>
+  $("form#search_form").on("submit", function(event){
+    event.preventDefault();
+    event.stopPropagation()
+
+    // check form validation before submission
+    // if (!$(this).valid()) {
+    //   return false;
+    // }
+
+    if( $("#query").val().trim() == "" ){
+        
+        
+        $("#query").addClass("is-invalid");
+        return false;
+        // return false;
+      }
+      else{
+        $("#query").removeClass("is-invalid");
+      }
+
+    if( $("form#search_form")[0].checkValidity() ){
+        // $("form#search_form").submit();
+      }
+      else{
+        $("form#search_form").addClass("was-validated");
+      }
+
+      showNotification($("#query").val().trim());
+
+
+
+    // console.debug("asdasdasd")
+  })
+</script>
+
+
+
+<!-- script for fetching chart data-->
+
+
+<script>
+
+
+
+  // ajax call
+  function getChartData(query){
+    $.ajax({
+      url: chart_url,
+      type: 'GET',
+      data: {
+        'query': query
+      },
+      dataType: 'json',
+      success: function (data) {
+        console.debug(data)
+      },
+      error: function (data) {
+        console.debug(data);
+      }
+    });
+  }
+
+
+  getChartData();
+
+</script>
+
+{% endblock %}

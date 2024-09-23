@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search{% endblock %}
+
+
+{% block styles %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'assets/vendor/gridjs/mermaid.min.css' %}" />
+
+<style>
+
+  body {
+      margin: 0;
+      font-family: neue-haas-unica,sans-serif;
+      font-size: .875rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #a4b1cd;
+      text-align: left;
+      background-color: #141d2b;
+  }
+  </style>
+
+
+
+<link
+rel="stylesheet"
+href="{% static 'assets/vendor/selectize/selectize.default.min.css' %}"
+crossorigin="anonymous"
+referrerpolicy="no-referrer"
+/>
+
+
+
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Files</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard_url' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Search</li>
+            {% if search_query %}
+                <li class="breadcrumb-item active">{{ search_query }}</li>
+            {% endif %}
+          </ol>
+        </nav>
+      </div>
+      <section class="section">
+        <div class="container-fluid">
+          <div class="row mb-3">
+            <div class="col-12">
+              <form action="{% url 'search_url' %}" method="GET" id="search_form">
+                <input type="text" placeholder="Search " name="query" value="{{ search_query|default:'' }}" class="form-control  search" style="height: 40px !important;" autocomplete="off" >
+              </form>
+            </div>
+          </div>
+          <div class="row mb-3 ">
+            <div class="col-4">
+              <select id="select-tools" multiple placeholder="Select Team"></select>
+            </div>
+          </div>  
+            <div class="row">
+                <div class="col-12">
+                    <div class="card bg-transparent">
+                        <div class="card-body py-4 bg-transparent">
+                            
+                            <div id="table"></div>
+                        </div>  
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+      </section>
+
+      
+      {{ search_query|json_script:"search_query" }}
+</main> 
+
+
+
+{%  endblock %}
+
+
+{% block scripts %}
+
+<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="{% static  'assets/vendor/gridjs/gridjs.production.min.js' %}"></script>
+<script src="{% static  'assets/js/utils.js' %}"></script>
+
+<script src="{% static 'assets/js/data.js' %}?limit='sadadsas'"></script>
+
+<script src="{% static 'assets/vendor/selectize/selectize.min.js' %}" ></script>
+
+
+
+
+
+<!-- <script>
+  console.debug(teams_data);
+</script> -->
+
+
+<script>
+const query = (JSON.parse(document.getElementById('search_query').textContent));
+    new gridjs.Grid({
+  columns: [ "ID", 'Destination IP', 'Source IP', {
+    name : "Payload",
+    'width': '50%'
+  }],
+  style : {
+    'table': {
+      'width': '100% !important'
+    }
+  }
+  ,
+  search: true,
+	sort: true,
+	pagination: {
+    limit: 20,
+    server: {
+      url: (prev, page, limit) => `${prev}?limit=${limit}&offset=${page * limit}&query=${query}`
+    }
+  },
+  server: {
+    url: '/search/json',
+    then: data => JSON.parse(data.initial_packets).map(packet => [ packet.id, packet.destination_ip, packet.source_ip, packet.payload ]),
+    total: data => data.count
+  },
+	className: {
+    table: 'table-body'
+  },
+	language: {
+    'search': {
+      'placeholder': 'Searching ...'
+    }
+  }
+}).render(document.getElementById("table"));
+
+
+</script>
+
+
+
+
+<script>
+  var $select = $('#select-tools').selectize({
+  maxItems: null,
+  valueField: 'ip',
+  labelField: 'title',
+  searchField: 'title',
+  options: teams_list,
+  create: false
+});
+var control = $select[0].selectize;
+
+</script>
+
+
+<!-- search form submission -->
+
+<script>
+  $("form#search_form").on("submit", function(event){
+    event.preventDefault();
+    event.stopPropagation()
+    console.debug("asdasdasd")
+  })
+</script>
+
+{% endblock %}

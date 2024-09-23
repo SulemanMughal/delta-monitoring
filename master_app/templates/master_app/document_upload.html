@@ -1,0 +1,198 @@
+{% extends 'master_app/base.html' %}
+{% load static %}
+
+
+{% block title %} Upload File {% endblock %}
+
+
+{% block styles %}
+
+
+<link rel="stylesheet" href="{% static 'assets/css/custom.css' %}">
+<link rel="stylesheet" href="{% static 'assets/vendor/dropzone/dropzone.css' %}">
+    <script src="{% static 'assets/vendor/dropzone/dropzone.js' %}"></script>
+
+    <style>
+
+      body {
+          margin: 0;
+          font-family: neue-haas-unica,sans-serif;
+          font-size: .875rem;
+          font-weight: 400;
+          line-height: 1.5;
+          color: #a4b1cd;
+          text-align: left;
+          background-color: #141d2b;
+      }
+      </style>
+
+    
+
+{% endblock %}
+
+
+{% block content %}
+
+<main>
+  <div class="container mt-5">
+    <div class="row justify-content-center ">
+        <div class="col-md-8 col-lg-6 col-xl-5">
+            <div class="card mx-auto my-5  w-100  w-md-50 border-0  " >
+              <div class="bg-login text-center mb-5">
+                <div class="bg-login-overlay"></div>
+                <div class="position-relative">
+                <h5 class="text-white font-size-20">Upload PCAP File</h5>
+                </div>
+                </div>
+                
+                <div class="card-body   mb-5">
+                    <form class="row g-3 needs-validation" novalidate  enctype='multipart/form-data' action="{% url 'document_upload_url' %}" method="POST" id="login_form"> 
+                      {% include 'form_errors.html' %}
+                      {% include 'master_app/messages.html' %}
+                        {% csrf_token %}
+                        <div class="">
+                          <input type="text" class="form-control " id="exampleInputEmail1" aria-describedby="emailHelp" required="" name="username" autocomplete="off" placeholder="Username" tabindex="1" autofocus="on">
+                          <div class="invalid-feedback">
+                            Please enter a valid username
+                          </div>
+                        </div>
+                        <div class="">
+                          <input type="number" class="form-control mt-1" id="port_number" required="" name="port" autocomplete="off" placeholder="Port Number to Observe" tabindex="2">
+                          
+                          <div class="invalid-feedback">
+                            Please enter a port number
+                          </div>
+                        </div>
+
+                        <div class="">
+                          <div class="fallback ">
+                            <input name="myfile" type="file" multiple required  />
+                              <div class="invalid-feedback">
+                                Please upload a pcap file
+                              </div>
+                          </div>
+                          
+                        </div>
+
+
+                        <div class="mt-4">
+                            <div class="row justify-content-start ">
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-success bg-color-green  py-2 px-4 text-color-dark fw-bold  w-100  "  tabindex="3" style="height: 54px">Upload</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                      </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+
+  </main><!-- End #main -->
+
+{% endblock %}
+
+
+
+{% block scripts %}
+
+
+
+
+<script src="{% static 'assets/js/jquery-3.5.1.min.js' %}"></script>
+
+
+<script>
+  // Example starter JavaScript for disabling form submissions if there are invalid fields
+(function () {
+'use strict'
+
+// Fetch all the forms we want to apply custom Bootstrap validation styles to
+var forms = document.querySelectorAll('.needs-validation')
+
+// Loop over them and prevent submission
+Array.prototype.slice.call(forms)
+  .forEach(function (form) {
+    form.addEventListener('submit', function (event) {
+      if (!form.checkValidity()) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+
+      form.classList.add('was-validated')
+    }, false)
+  })
+})();
+</script>
+
+<script>
+  $(document).ready(function(){
+    $("button[type='submit']").on("click", function(event){
+      event.preventDefault();
+      event.stopPropagation();
+      if( ( $("#port_number").val() < 0 || $("#port_number").val() > 65535 ) ){
+        $("#port_number").addClass("is-invalid");
+        return false;
+      }
+      else{
+        $("#port_number").removeClass("is-invalid");
+      }
+      // $("#login_form").submit();
+      // check validation before submitting form
+      if( $("#login_form")[0].checkValidity() ){
+        $("#login_form").submit();
+      }
+      else{
+        $("#login_form").addClass("was-validated");
+      }
+    })
+  });
+</script>
+
+{% endblock %}
+
+<script src="{% static 'assets/js/custom.js' %}"></script>
+<div class="container ">
+  <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+    <div class="container">
+      <div class="row">
+        <div class="col-6 mx-auto my-5 py-3">
+          
+              <form enctype='multipart/form-data' action="{% url 'document_upload_url' %}" method='POST' class="dropzone dz " id="my-dropzone" >
+                {% csrf_token %}
+                 <div class="row">
+                  <div class="col">
+                    <input type="text" class="form-control" placeholder="username" name="username" autocomplete="off" required >
+                  </div>
+                  <div class="col">
+                    <input type="number" class="form-control" placeholder="Port to Observe" name="observe_port" autocomplete="off" required>
+                  </div>
+                </div>
+                <div class="fallback ">
+                  <input name="myfile" type="file" multiple />
+                </div>
+
+                
+            </form>
+            
+
+            <ul id="upload-filelist" class="completed mx-0 d-none">
+                
+                <li class="file total "  data-filename="">
+                    <span class="file-name">Done!</span>
+                    
+                    <span class="file-size"></span>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+    </div>
+  </section>
+    
+</div>

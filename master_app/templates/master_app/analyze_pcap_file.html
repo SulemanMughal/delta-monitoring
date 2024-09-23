@@ -1,0 +1,622 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Analyze{% endblock %}
+
+{% block styles %}
+<style>
+body {
+  margin: 0;
+  font-family: neue-haas-unica,sans-serif;
+  font-size: .875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #a4b1cd;
+  text-align: left;
+  background-color: #141d2b;
+}
+
+div.tree a{
+    color: #9fef00 !important;
+}
+
+.apexcharts-legend-text {
+  color: #fff !important;
+}
+
+</style>
+
+<link rel="stylesheet" href="{% static  'assets/vendor/aos/aos.css' %}" />
+<link rel="stylesheet"  href="{% static 'assets/css/site.min.css' %}" />
+<link rel="stylesheet"  href="{% static 'assets/css/load-awesome.css' %}" />
+<link rel="stylesheet" href="{% static 'assets/vendor/izitoast/iziToast.min.css' %}" />
+<script src="{% static 'assets/vendor/ag-grid/ag-grid-enterprise.min.js' %}" ></script>
+<link rel="stylesheet"  href="{% static 'assets/css/custom_ag.css' %}" />
+
+<style>
+
+  .overlay {
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      background: rgba(0, 0, 0, 0.7);
+  }
+  
+  .overlay__inner {
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+  }
+  
+  .overlay__content {
+      left: 50%;
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+  }
+  </style>
+  
+
+{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+  
+    <!-- <div class="tree"></div> -->
+  
+    <section class="section border-0" >
+      <div class="container-fluid">
+        <div 
+        class="row justify-content-center mb-3 d-none"
+        data-aos="zoom-out"
+        data-aos-offset="0"
+        data-aos-delay="0"
+        data-aos-duration="1000"
+        data-aos-easing="ease-in-out"
+        data-aos-mirror="true"
+        data-aos-once="true"
+        data-aos-anchor-placement="top-center"
+        id="summary_row"
+        >
+        <div class="col-6 ">
+          <div class="card border-secondary" >
+            <div class="card-header bg-transparent border-0 fw-bolder fs-3">Analysis Summary</div>
+            <div class="card-body text-secondary">
+              <ul class="list-group" id="summary_list_items">
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="card border-secondary" >
+            <div class="card-header bg-transparent border-0 fw-bolder fs-3">Statistics</div>
+            <div class="card-body text-secondary">
+              <div id="chart"></div>
+            </div>
+          </div>
+        </div>
+
+        </div>
+      <div 
+        class="row justify-content-center"
+        data-aos="zoom-out"
+        data-aos-offset="0"
+        data-aos-delay="0"
+        data-aos-duration="1000"
+        data-aos-easing="ease-in-out"
+        data-aos-mirror="true"
+        data-aos-once="true"
+        data-aos-anchor-placement="top-center"
+      >
+        <div class="col-12">
+          <div class="card bg-transparent p-0 border-0">
+            <div class="card-body p-0 bg-transparent">
+              <div id="myGrid" style="height:100vh; "  class="ag-theme-balham"></div>
+            </div>  
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+</main>
+
+<!-- loader -->
+<div class="overlay" id="loader">
+  <div class="overlay__inner">
+      <div class="overlay__content">
+        <div class="la-line-scale-pulse-out la-3x">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+        
+      </div>
+  </div>
+</div>
+
+{%  endblock %}
+
+
+{% block scripts %}
+  <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
+  <script src="{% static 'assets/vendor/izitoast/iziToast.min.js' %}"></script>
+  <script src="{% static 'assets/js/require.min.js' %}"></script>
+  
+  <script type="text/javascript" charset="utf-16">
+    agGrid.LicenseManager.setLicenseKey('SHI_UK_on_behalf_of_Lenovo_Sweden_MultiApp_1Devs6_November_2019__MTU3Mjk5ODQwMDAwMA==e27a8fba6b8b1b40e95ee08e9e0db2cb');
+    let gridApi;
+
+    const columnDefs = [
+    {
+      headerName: "#",
+      valueGetter: "node.rowIndex + 1",
+      sortable: true,
+      filter: true,
+      resizable: true,
+      width: 80,
+      sortingOrder: [ "desc"],
+      minWidth: 80, 
+      maxWidth: 80,
+        cellStyle: {
+          fontSize: '14px'
+        }
+    },
+      {headerName: 'Src IP', field: 'src_ip', sortable: true, filter: true, resizable: true, width : 200, maxWidth: 200, minWidth: 200,
+        cellStyle: {
+          fontSize: '16px'
+        }},
+      {headerName: 'Destination IP', field: 'dst_ip', sortable: true, filter: true, resizable: true, width : 200, minWidth: 200, maxWidth: 200,
+        cellStyle: {
+          fontSize: '16px'
+        },
+      },
+      {headerName: 'Tool', field: 'tool', sortable: true, filter: true, resizable: true, 
+        cellStyle: {
+          fontSize: '16px'
+        }
+      }
+  ];const rowData = [
+  ];
+  const gridOptions = {
+      columnDefs: columnDefs,
+      //  domLayout: 'autoHeight',
+      // pagination:true,
+      rowData: rowData,
+      onGridReady(params) {
+        params.api.sizeColumnsToFit();
+      },
+      overlayLoadingTemplate:
+    'Analyzing the pcap file...',
+  
+  overlayNoRowsTemplate:
+    'There is no malicious activity detected.',
+
+      
+  };
+  const eGridDiv = document.querySelector('#myGrid');
+  gridApi = agGrid.createGrid(eGridDiv, gridOptions);
+
+</script>
+  
+
+  <!-- Animation Initialization -->
+  <script>
+
+
+// require.config({
+//     paths: {
+//       'inspire-tree': 'https://cdnjs.cloudflare.com/ajax/libs/inspire-tree/5.0.2/inspire-tree.min',
+//       'inspire-tree-dom': 'https://unpkg.com/inspire-tree-dom@4.0.6/dist/inspire-tree-dom.min',
+//       lodash: 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min'
+//     }
+//   });
+
+    AOS.init();
+
+    $("div#loader").show();
+
+
+    
+
+
+    let target_url_os = "{% url 'analyze_pcap_file_os_json_url' filename %}";
+
+    let target_url_mac = "{% url 'analyze_pcap_file_mac_json_url' filename %}";
+
+    let target_common_ip = "{% url 'common_ip_url' filename %}";
+
+    let target_user_agents = "{% url 'user_agents_url' filename %}";
+
+
+    let os_list = [];
+
+    let tools_names = [];
+    let tools_values = [];
+
+
+
+
+    function showNotification(query){
+      return iziToast.show({
+      theme: 'dark',
+      // icon: '<i class="fa fa-info-circle"></i>',
+      title: '',
+      message:`${query}`,
+      position: 'topCenter', // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter
+      progressBarColor: 'rgb(0, 255, 184)',
+      
+      onOpening: function(instance, toast){
+          console.info('callback abriu!');
+      },
+      onClosing: function(instance, toast, closedBy){
+          console.info('closedBy: ' + closedBy); // tells if it was closed by 'drag' or 'button'
+      }
+  });
+  }
+    
+
+    // fetch os details
+    function fetchOsDetails(){
+      $.ajax({
+        url: target_url_os,
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+          // console.debug(data?.os_list)
+          for (const [key, value] of Object.entries(JSON.parse(data?.os_list))) {
+              os_list.push({
+                  text : key,
+                  children : value.map((item) => (
+                      {
+                          text : item
+                      }
+                  ))
+              })
+          }
+          // console.debug(os_list.length)
+          if(os_list.length == 0){
+            showNotification("No OS details found");
+          } else{
+          //   require(['inspire-tree', 'inspire-tree-dom'], (InspireTree, InspireTreeDOM) => {
+          //   const tree = new InspireTree({
+          //     data: os_list
+          //   });
+            
+          //   new InspireTreeDOM(tree, {
+          //     target: '.tree'
+          //   });
+          // })
+          }
+          
+          // $("div#loader").hide();
+        },
+        error: function (error_data) {
+          console.log("error");
+          // console.log(error_data);
+          // $("div#loader").hide();
+        },
+        complete:function(data){
+          $("div#loader").hide();
+        }
+      });
+    }
+
+
+    // fetch mac addresses 
+    function fetchMacDetails(){
+      $.ajax({
+        url: target_url_mac,
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+          // console.debug(data)
+          os_list.push({
+            text : "Host",
+            children : Object.entries(JSON.parse(data?.mac_list)).map((item) => (
+                {
+                    text : `${item[0]}`,
+                    children : [
+                      {
+                        text  : `IP Address : ${item[0]}`
+                      }
+                    ]
+                    // children : [
+                    //   {
+                    //     text : item[1].mac
+                    //   },
+                    //   {
+                    //     text : item[1].dst_vendor
+                    //   }
+                    // ]
+                    // children : {
+                    //   text : {
+                    //     "IP" : item[1].ip,
+                    //     "MAC" : item[1].mac,
+                    //   },
+                      
+                    // }
+                }
+            ))
+          })
+          // for (const [key, value] of Object.entries(JSON.parse(data?.mac_list))) {
+          //   // console.debug(key, value)
+          //     os_list.push({
+          //         text : key,
+          //         children : {
+          //           text : value.ip
+          //         }
+          //     })
+          // }
+          // require(['inspire-tree', 'inspire-tree-dom'], (InspireTree, InspireTreeDOM) => {
+          //   const tree = new InspireTree({
+          //     data: os_list
+          //   });
+            
+          //   new InspireTreeDOM(tree, {
+          //     target: '.tree'
+          //   });
+          // })
+          // $("div#loader").hide();
+        },
+        error: function (error_data) {
+          console.log("error");
+          // console.log(error_data);
+          // $("div#loader").hide();
+        },
+        complete:function(data){
+          // $("div#loader").hide();
+        }
+      });
+    }
+
+
+    function fetchCommonSrcIp(){
+      $.ajax({
+        url: target_common_ip,
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+          // console.debug(data)
+          // os_list.push({
+
+          // })
+          // os_list.push({
+          //   text : "HOST",
+          //   children : (data?.common_ip).map((item) => (
+          //             {
+          //                 text : item
+          //             }
+          //         ))
+          // })
+          // os_list.push({
+          //   "HOST" : data?.common_ip
+          // })
+          // for (const [key, value] of Object.entries(JSON.parse(data?.common_ip))) {
+          //     os_list.push({
+          //         text : key,
+          //         children : {
+          //           text : ""
+          //         }
+          //     })
+          // }
+          // require(['inspire-tree', 'inspire-tree-dom'], (InspireTree, InspireTreeDOM) => {
+          //   const tree = new InspireTree({
+          //     data: os_list
+          //   });
+            
+          //   new InspireTreeDOM(tree, {
+          //     target: '.tree'
+          //   });
+          // })
+          // $("div#loader").hide();
+        },
+        error: function (error_data) {
+          console.log("error");
+          // $("div#loader").hide();
+        },
+      });
+    }
+
+
+    // fetch host user agensts (host_ip + user_agent)
+
+    function randomize() {
+        return chart.w.globals.series.map(function() {
+            return Math.floor(Math.random() * (100 - 1 + 1)) + 1
+        })
+      }
+
+    // fetch mac addresses 
+    function fetchUserAgents(){
+      gridApi.showLoadingOverlay();
+      $.ajax({
+        url: target_user_agents,
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+          // console.debug(data?.user_agents)
+
+          let toolCount = {};
+          if(data?.user_agents.length > 0){
+
+            $("#summary_row").removeClass("d-none");
+            
+            data?.user_agents.forEach(log => {
+            const tool = log.tool.replace(" Detected", "");
+            toolCount[tool] = (toolCount[tool] || 0) + 1;
+        });
+
+        // console.debug(toolCount);
+
+        
+
+
+        for (const key in toolCount) {
+          if (toolCount.hasOwnProperty(key)) {
+              const value = toolCount[key];
+              // console.log(`Key: ${key}, Value: ${value}`);
+              $("#summary_list_items").append(`<li class="list-group-item d-flex justify-content-between align-items-center bg-transparent text-white">${key} <span class="text-white">${value}</span></li>`);
+          }
+      }
+
+      $("#summary_list_items").append(`<li class="list-group-item d-flex justify-content-between align-items-center bg-transparent text-white">Total Number of Dectected Packets<span class="text-white">${data?.user_agents.length}</span></li>`);
+
+        // console.debug(toolCount)
+
+
+      tools_names = Object.keys(toolCount);
+      tools_values = Object.values(toolCount);
+
+      var options = {
+          series: tools_values,
+          chart: {
+          width: 450,
+          type: 'pie',
+        },
+        labels: tools_names,
+        plotOptions: {
+          pie: {
+            startAngle: -90,
+            endAngle: 270
+          }
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (val) {
+            return val ? '     ' + '    ' +  val.toFixed(1) + '%' : ''
+          },
+        },
+        // fill: {
+        //   type: 'gradient',
+        // },
+        legend: {
+          formatter: function(val, opts) {
+            return val + " - " + opts.w.globals.series[opts.seriesIndex]
+          }
+        },
+        // title: {
+        //   // text: 'Gradient Donut with custom Start-angle',
+        //   display: false
+        // },
+        responsive: [{
+          breakpoint: 480,
+          options: {
+            chart: {
+              width: 300
+            },
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }]
+        };
+
+let chart = new ApexCharts(document.querySelector("#chart"), options);
+
+
+
+chart.render();
+        
+          }
+
+
+          gridApi.setGridOption('rowData', (data?.user_agents))
+
+          // os_list.push({
+          //   text : "Host",
+          //   children : Object.entries(data?.user_agents).map((item) => (
+          //       {
+          //           text : `${item[0]}`,
+          //           children : [
+          //             {
+          //               text  : `IP Address : ${item[0]}`
+          //             }
+          //           ]
+          //           // children : [
+          //           //   {
+          //           //     text : item[1].mac
+          //           //   },
+          //           //   {
+          //           //     text : item[1].dst_vendor
+          //           //   }
+          //           // ]
+          //           // children : {
+          //           //   text : {
+          //           //     "IP" : item[1].ip,
+          //           //     "MAC" : item[1].mac,
+          //           //   },
+                      
+          //           // }
+          //       }
+          //   ))
+          // })
+          // for (const [key, value] of Object.entries(JSON.parse(data?.mac_list))) {
+          //   // console.debug(key, value)
+          //     os_list.push({
+          //         text : key,
+          //         children : {
+          //           text : value.ip
+          //         }
+          //     })
+          // }
+          // require(['inspire-tree', 'inspire-tree-dom'], (InspireTree, InspireTreeDOM) => {
+          //   const tree = new InspireTree({
+          //     data: os_list
+          //   });
+            
+          //   new InspireTreeDOM(tree, {
+          //     target: '.tree'
+          //   });
+          // })
+          // $("div#loader").hide();
+        },
+        error: function (error_data) {
+          console.log("error");
+          // console.log(error_data);
+          // $("div#loader").hide();
+        },
+        complete:function(data){
+          // console.debug(data?.)
+          $("div#loader").hide();
+          // gridApi.hideOverlay();
+          // chart.updateSeries(randomize())
+//           
+
+
+
+        }
+      });
+    }
+
+
+    $(document).ready(function () {
+      // fetchOsDetails();
+      fetchUserAgents();
+    
+      // delay for 2 seconds
+      // setTimeout(function() {
+        // fetchMacDetails();
+        // fetchCommonSrcIp();
+      // }, 2000);
+      
+    });
+
+
+  </script>
+
+
+
+
+
+  
+
+
+{% endblock %}
+

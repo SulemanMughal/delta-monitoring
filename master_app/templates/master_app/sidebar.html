@@ -1,0 +1,81 @@
+
+
+
+{% if request.user.is_authenticated %}
+
+<!-- ======= Sidebar ======= -->
+<aside id="sidebar" class="sidebar bg-color-blue-nav">
+
+  <ul class="sidebar-nav" id="sidebar-nav">
+
+    <li class="nav-item">
+      <a class="nav-link bg-transparent text-color-green" href="{% url 'dashboard_url' %}">
+        <i class="bi bi-grid text-color-green"></i>
+        <span>Dashboard</span>
+      </a>
+    </li><!-- End Dashboard Nav -->
+
+
+    <li class="nav-item ">
+      <a class="nav-link bg-transparent text-color-green" href="{% url 'pcap_files_list' %}">
+        <i class="bi bi-files text-color-green"></i>
+        <span>Files</span>
+      </a>
+    </li><!-- End Dashboard Nav -->
+
+    <li class="nav-item">
+      <a class="nav-link bg-transparent text-color-green" href="{% url 'search_url' %}">
+        <i class="bi bi-search text-color-green"></i>
+        <span>Search</span>
+      </a>
+    </li><!-- End Dashboard Nav -->
+    
+    
+    <li class="nav-item">
+      <a class="nav-link bg-transparent text-color-green" href="{% url 'generate_report_url' %}">
+        <i class="bi bi-file-pdf text-color-green"></i>
+        <span>Reports</span>
+      </a>
+    </li><!-- End Dashboard Nav -->
+
+
+
+
+    
+
+    <li class="nav-item">
+      <a class="nav-link bg-transparent text-color-green" href="{% url 'user_logout' %}">
+        <i class="bi bi-box-arrow-in-right text-color-green"></i>
+        <span>Logout</span>
+      </a>
+    </li><!-- End Login Page Nav -->
+  
+    
+  </ul>
+
+</aside><!-- End Sidebar-->
+
+{% else %}
+
+
+
+<!-- ======= Sidebar ======= -->
+<aside id="sidebar" class="sidebar d-none">
+
+  <ul class="sidebar-nav" id="sidebar-nav">
+
+    
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" href="#!">
+        <i class="bi bi-box-arrow-in-right"></i>
+        <span>Login</span>
+      </a>
+    </li><!-- End Login Page Nav -->
+  
+    
+  </ul>
+
+</aside><!-- End Sidebar-->
+
+{% endif %}

@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Realtime{% endblock %}
+
+{% block styles %}
+
+<style>
+
+    body {
+        margin: 0;
+        font-family: neue-haas-unica,sans-serif;
+        font-size: .875rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #a4b1cd;
+        text-align: left;
+        background-color: #141d2b;
+    }
+    </style>
+  
+  
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/vendor/gridjs/mermaid.min.css' %}" />
+  <!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" /> -->
+
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+
+  
+
+{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+  <div class="pagetitle">
+    <h1>Live Monitoring</h1>
+    <nav >
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard_url' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Live</li>
+      </ol>
+    </nav>
+  </div><!-- End Page Title -->
+
+
+    <!-- <h1 id="main_2" >Counter</h1> -->
+    <!-- <select class="form-select form-select-sm" aria-label=".form-select-sm example">
+      <option selected>Open this select menu</option>
+      <option value="1">One</option>
+      <option value="2">Two</option>
+      <option value="3">Three</option>
+    </select> -->
+    
+      <section class="section dashboard">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="row">
+              <div class="col-3">
+                <div class="card info-card sales-card">
+                    <div class="card-body">
+                      <h5 class="card-title">Packets Per Second</h5>
+                      <div class="d-flex align-items-center">
+                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                          <i class="fa-brands fa-hive"></i>
+                        </div>
+                        <div class="ps-3">
+                          <h6 id="main_2" class="h6 counter">{{ total_packets }}</h6>
+                        </div>
+                        <!-- <a href="{% url 'document_list_url' %}" class="btn btn-primary stretched-link bg-transparent border-0 "></a> -->
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              <div class="col-3">
+                <div class="card info-card sales-card">
+                    <div class="card-body">
+                      <h5 class="card-title">Total Packets</h5>
+                      <div class="d-flex align-items-center">
+                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                          <i class="fa-regular fa-envelope"></i>
+                        </div>
+                        <div class="ps-3">
+                          <h6 id="total_packets" class="counter h6">{{ total_packets }}</h6>
+                        </div>
+                        <!-- <a href="{% url 'document_list_url' %}" class="btn btn-primary stretched-link bg-transparent border-0 "></a> -->
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              
+            </div>
+          </div>  
+        </div>
+        <div class="row">
+          <div class="col">
+            <div id="chart">
+            </div>
+          </div>
+        </div>
+          
+        <div class="row">
+            <div class="col-12">
+                <div class="card bg-transparent p-0">
+                  <div class="card-body p-0 bg-transparent">
+                      <div id="table"></div>
+                  </div>  
+              </div>
+              </div>
+        </div>
+      </section>
+</main>
+
+
+
+{%  endblock %}
+
+
+{% block scripts %}
+
+
+<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="{% static  'assets/vendor/gridjs/gridjs.production.min.js' %}"></script>
+<script src="{% static  'assets/js/utils.js' %}"></script>
+<!-- <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script> -->
+<script>
+  $(document).ready(function() {
+    var options = {
+  chart: {
+    type: 'bar'
+  },
+  series: [{
+    name: 'sales',
+    data: [30,40,45,50,49,60,70,91,125]
+  }],
+  xaxis: {
+    categories: [1991,1992,1993,1994,1995,1996,1997, 1998,1999]
+  }
+}
+
+var chart = new ApexCharts(document.querySelector("#chart"), options);
+
+chart.render();
+} );
+</script>
+
+<script>
+
+function FixedSizeArray(maxSize) {
+    this.array = [];
+    this.maxSize = maxSize;
+
+    this.push = function (element) {
+        this.array.push(element);
+        this.array.unshift(element)
+
+        // Trim the array if it exceeds the maxSize
+        if (this.array.length > this.maxSize) {
+            this.array.shift();  // Remove the first element
+        }
+    };
+
+    this.toArray = function () {
+        return this.array;
+    };
+
+    this.length = function () {
+        return this.array.length;
+    };
+}
+
+
+
+    let gridInstance ;
+
+    let data = [];
+    // let data  = new FixedSizeArray(2000);
+;
+
+    
+
+
+function initializeGrid(data) {
+    const gridContainer = document.getElementById('table');
+    gridContainer.innerHTML = ''; // Clear the container
+    
+    // console.debug(gridInstance)
+    if (gridInstance) {
+    //   gridInstance.destroy(); // Destroy the existing instance
+    }
+
+    // gridInstance = new gridjs.Grid({
+    //   columns: ['id', 'name', 'age'],
+    //   data: data,
+    // }).render('#grid');
+    gridInstance = new gridjs.Grid({
+  columns: ["Dst IP", "Src IP", {
+    name : "Payload",
+    width : "50%"
+  }],
+  style : {
+    'table': {
+      'width': '100% !important'
+    }},
+  search: false,
+	sort: false,
+    height : "700px",
+	pagination: {
+    limit : 50
+  } ,
+	className: {
+    table: 'table-body'
+  },
+  data: data,
+	language: {
+    'search': {
+      'placeholder': 'Searching ...'
+    }
+  }
+})
+gridInstance.updateConfig({data: data}).render(document.getElementById("table")).forceRender();
+
+    
+  }
+
+  function updateGridData(newData) {
+    // Update the grid configuration and reinitialize
+    // console.debug(gridInstance?.data)
+    // let existingData = gridInstance?.data().rows; // Get existing data
+    // let combinedData;
+    // // console.debug(existingData)
+    // if(existingData){
+    //     combinedData = [...existingData, ...newData]; // Concatenate existing and new data
+    // }
+    // else{
+        let combinedData = [...data]; // Concatenate existing and new data
+    // }
+  
+
+    // initializeGrid(combinedData);
+    initializeGrid(combinedData);
+    // new_table.forceRender();
+    
+  }
+
+  
+
+    number_one=document.getElementById('main_2');
+    total_packets=document.getElementById('total_packets');
+    var wsStart='ws://'
+    var endpoint=wsStart + window.location.host + "/ws/whole1/"
+    // var endpoint=wsStart 
+    var socket = new WebSocket(endpoint)
+    // console.log(endpoint)    
+    
+    
+    socket.onopen =function(e){
+    console.log('open',e)
+    socket.send(1)
+    }
+    
+    
+    socket.onmessage=function(e){
+    // console.log('message',e)s
+    // data
+
+    
+    // data.unshift(...JSON.parse(e.data))
+    // data = [...JSON.parse(e.data)].slice(0, 10)
+    data = [...JSON.parse(e.data)]
+
+    // console.debug(data)
+    updateGridData(JSON.parse(e.data));
+
+    // custom_gridjs.updateConfig({
+    //     data : JSON.parse("[[\"23.201.131.89\", \"192.168.0.143\", \"IPv4\", \"\\u0000\"], [\"104.16.125.175\", \"192.168.0.143\", \"IPv4\", \"\\u0000\"], [\"192.168.0.143\", \"104.16.125.175\", \"IPv4\", \"\"], [\"192.168.0.143\", \"23.201.131.89\", \"IPv4\", \"\"], [\"23.201.131.89\", \"192.168.0.143\", \"IPv4\", \"\\u0017\\u0003\\u0003\\u0000\\u0013\\u0086}d}m\\u00d2\\u00ac\\u00b9\\u0003\\u00d8\\u00b4\\u00d7b\\u00d4Q\\u0083|q\\u00b9\"], [\"23.201.131.89\", \"192.168.0.143\", \"IPv4\", \"\"], [\"192.168.0.143\", \"23.201.131.89\", \"IPv4\", \"\\u0000\\u0000\\u0000\\u0000\\u0000\\u0000\"], [\"192.168.0.143\", \"23.201.131.89\", \"IPv4\", \"\\u0017\\u0003\\u0003\\u0000\\u0013\\u0015\\u0017R\\u0018\\u00a4\\r\\u00edv\\u00c1\\u00a8}{\\u00cd\\u00ae\\u009d\\u00d8\\u00b8\\u0014W\"], [\"192.168.0.143\", \"23.201.131.89\", \"IPv4\", \"\\u0000\\u0000\\u0000\\u0000\\u0000\\u0000\"], [\"23.201.131.89\", \"192.168.0.143\", \"IPv4\", \"\"], [\"192.168.0.143\", \"23.201.131.89\", \"IPv4\", \"\\u0000\\u0000\\u0000\\u0000\\u0000\\u0000\"]]")
+    // })
+//     new gridjs.Grid({
+//   data: [
+//     { name: 'John', email: 'john@example.com' },
+//     { name: 'Mark', email: 'mark@gmail.com' },
+//     { name: 'Eoin', email: 'eo3n@yahoo.com' },
+//     { name: 'Nisen', email: 'nis900@gmail.com' }
+//   ]
+// });
+
+    // number_one.innerHTML=data.length;
+    // console.debug(JSON.parse(e.data).length)
+    // console.debug(e.data)
+    number_one.innerHTML=JSON.parse(e.data).length;
+    total_packets.innerHTML= parseInt(total_packets.innerHTML) +  JSON.parse(e.data).length;
+    socket.send(1)
+    
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    </script>
+
+{% endblock %}

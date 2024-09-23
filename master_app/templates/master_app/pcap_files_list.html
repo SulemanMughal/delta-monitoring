@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}PCAP Files{% endblock %}
+
+{% block styles %}
+<style>
+body {
+  margin: 0;
+  font-family: neue-haas-unica,sans-serif;
+  font-size: .875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #a4b1cd;
+  text-align: left;
+  background-color: #141d2b;
+}
+</style>
+
+<link rel="stylesheet" href="{% static  'assets/vendor/aos/aos.css' %}" />
+<script src="{% static 'assets/vendor/ag-grid/ag-grid-enterprise.min.js' %}" ></script>
+<link rel="stylesheet"  href="{% static 'assets/css/custom_ag.css' %}" />
+{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+  {% comment %}
+  <div class="pagetitle ">
+    <h1>PCAP Files</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard_url' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Files</li>
+      </ol>
+    </nav>
+  </div>
+  {% endcomment %}
+  <section class="section" >
+    <div class="container-fluid">
+      
+
+      
+
+      <div class="row justify-content-center"
+      
+      data-aos="zoom-out"
+      data-aos-offset="0"
+      data-aos-delay="0"
+      data-aos-duration="1000"
+      data-aos-easing="ease-in-out"
+      data-aos-mirror="true"
+      data-aos-once="true"
+      data-aos-anchor-placement="top-center"
+      >
+      
+        <div class="col-8">
+          <div class="justify-content-start row mb-2">
+            <div class="col-6">
+              <input type="text" id="filter-text-box" class="filename_filter" placeholder="Search Filename..." oninput="onFilterTextBoxChanged()">
+            </div>
+          </div>
+          <div class="row">
+              <div class="col-12">
+                <div class="card bg-transparent p-0">
+                  <div class="card-body p-0 bg-transparent">
+                    <div id="myGrid" style="height:78vh; "  class="ag-theme-balham"></div>
+                  </div>  
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+{%  endblock %}
+
+
+{% block scripts %}
+  <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
+  <script src="{% static 'assets/js/filesize.min.js' %}"></script>
+
+  <script>
+    AOS.init();
+  </script>
+  
+
+<script type="text/javascript" charset="utf-16">
+
+agGrid.LicenseManager.setLicenseKey('SHI_UK_on_behalf_of_Lenovo_Sweden_MultiApp_1Devs6_November_2019__MTU3Mjk5ODQwMDAwMA==e27a8fba6b8b1b40e95ee08e9e0db2cb');
+
+let gridApi;
+
+function onFilterTextBoxChanged() {
+  gridApi.setGridOption(
+    'quickFilterText',
+    document.getElementById('filter-text-box').value
+  );
+}
+const columnDefs = [
+    {
+      headerName: "#",
+      valueGetter: "node.rowIndex + 1",
+      sortable: true,
+      filter: true,
+      resizable: true,
+      width: 80,
+      sortingOrder: [ "desc"],
+      minWidth: 80, 
+      maxWidth: 80,
+        cellStyle: {
+          fontSize: '14px'
+        }
+
+    },
+      {headerName: 'Name', field: 'name', sortable: true, filter: true, resizable: true, width : 200, maxWidth: 200, minWidth: 200,
+        cellStyle: {
+          fontSize: '16px'
+        }},
+      {headerName: 'Size', field: 'size', sortable: true, filter: true, resizable: true, width : 130, minWidth: 130, maxWidth: 130,
+        cellStyle: {
+          fontSize: '16px'
+        },
+        cellRenderer: function(params) {
+          return params.value ?  filesize(params.value, {standard: "jedec"}): '';
+        }
+      
+      },
+      {headerName: 'Action', field: 'download_link', sortable: true, filter: true, resizable: true, 
+        cellStyle: {
+          fontSize: '16px'
+        },
+        cellRenderer: function(params) {
+          return params.value ? `<a href="${params.value}" class="text-white text-center"><i class="fa fa-download me-2"></i>Download</a>` : '';
+        }    
+      }
+       ,
+       {headerName: 'Details', field: 'details', sortable: true, filter: true, resizable: true, 
+         cellStyle: {
+           fontSize: '16px'
+         },
+         cellRenderer: function(params) {
+           return params.value ? `<a href="${params.value}" class="text-white text-center"><i class="fa fa-search me-2"></i>Analyze</a>` : '';
+         }    
+       }
+      
+      // {headerName: 'Dst Port', field: 'dst_port', sortable: true, filter: true, resizable: true, width : 130, minWidth: 130, maxWidth: 130,
+      //   cellStyle: {
+      //     fontSize: '16px'
+      //   }},
+      // {
+      //   headerName: 'Payload', 
+      //   field: 'payload', 
+      //   sortable: true, 
+      //   filter: true, 
+      //   resizable: true,
+      //   cellStyle: {
+      //     fontSize: '16px',
+      //     "wordBreak": "normal"
+      //   },
+      //   "wrapText": true,
+      //   "autoHeight": true,
+        
+      // },
+  ];
+  const rowData = [
+  ];
+  const gridOptions = {
+      columnDefs: columnDefs,
+      //  domLayout: 'autoHeight',
+      // pagination:true,
+      rowData: rowData,
+      onGridReady(params) {
+        params.api.sizeColumnsToFit();
+      },
+      
+  };
+  const eGridDiv = document.querySelector('#myGrid');
+  gridApi = agGrid.createGrid(eGridDiv, gridOptions);
+
+  // ajax call to get data for grid
+  $.ajax({
+      url: "{% url 'pcap_files_list_json' %}",
+      type: 'GET',
+      dataType: 'json',
+      success: function (data) {
+        // console.debug(data)
+        gridApi.setGridOption('rowData', JSON.parse(data.files_list))
+      },
+      error: function (data) {
+        // console.debug(data);
+      }
+    });
+
+</script>
+{% endblock %}

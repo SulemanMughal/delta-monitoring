@@ -1,0 +1,176 @@
+| PACKET 1 |   
+
+| PACKET 2 |   
+
+| PACKET 3 |   
+
+| PACKET 4 |   
+
+| PACKET 5 |   
+
+| PACKET 6 |   
+
+| PACKET 7 |   
+
+| PACKET 8 |   
+
+| PACKET 9 |   
+
+| PACKET 10 |   
+
+| PACKET 11 |   
+
+| PACKET 12 |   
+
+| PACKET 13 |   
+
+| PACKET 14 |   
+
+| PACKET 15 |   
+
+| PACKET 16 |   
+
+| PACKET 17 |   
+
+| PACKET 18 |   
+
+| PACKET 19 |   
+
+| PACKET 20 |   
+
+| PACKET 21 |   
+
+| PACKET 22 |   
+
+| PACKET 23 |   
+
+| PACKET 24 |   
+
+| PACKET 25 |   
+
+| PACKET 26 |   
+
+| PACKET 27 |   
+
+| PACKET 28 |   
+
+| PACKET 29 |   
+
+| PACKET 30 |   
+
+| PACKET 31 |   
+
+| PACKET 32 |   
+
+| PACKET 33 |   
+
+| PACKET 34 |   
+
+| PACKET 35 |   
+
+| PACKET 36 |   
+
+| PACKET 37 |   
+
+| PACKET 38 |   
+
+| PACKET 39 |   
+
+| PACKET 40 |   
+
+| PACKET 41 |   
+
+| PACKET 42 |   
+
+| PACKET 43 |   
+
+| PACKET 44 |   
+
+| PACKET 45 |   
+
+| PACKET 47 |   
+
+| PACKET 48 |   
+
+| PACKET 49 |   Mac address of router: 00:0c:29:42:3a:24    IP address of router: 192.168.14.161    
+
+| PACKET 50 |   
+
+| PACKET 52 |   
+
+| PACKET 53 |   
+
+| PACKET 55 |   
+
+| PACKET 57 |   
+
+| PACKET 58 |   
+
+| PACKET 59 |   
+
+| PACKET 61 |   
+
+| PACKET 62 |   
+
+| PACKET 63 |   
+
+| PACKET 64 |   
+
+| PACKET 65 |   
+
+| PACKET 66 |   
+
+| PACKET 67 |   
+
+| PACKET 68 |   
+
+| PACKET 69 |   
+
+| PACKET 70 |   
+
+| PACKET 71 |   
+
+| PACKET 72 |   
+
+| PACKET 73 |   
+
+| PACKET 74 |   
+
+| PACKET 75 |   
+
+| PACKET 76 |   
+
+| PACKET 77 |   
+
+| PACKET 78 |   
+
+| PACKET 79 |   
+
+| PACKET 80 |   
+
+| PACKET 81 |   
+
+| PACKET 82 |   
+
+| PACKET 83 |   
+
+| PACKET 84 |   
+
+| PACKET 85 |   
+
+| PACKET 86 |   
+
+| PACKET 87 |   
+
+| PACKET 88 |   
+
+| PACKET 89 |   
+
+| PACKET 90 |   
+
+| PACKET 91 |   
+
+| PACKET 92 |   
+
+| PACKET 93 |   
+

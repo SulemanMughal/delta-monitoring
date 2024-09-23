@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Login{% endblock %}
+
+{% block styles %}
+<style>
+
+body {
+    margin: 0;
+    font-family: neue-haas-unica,sans-serif;
+    font-size: .875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #a4b1cd;
+    text-align: left;
+    background-color: #141d2b;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center ">
+          <!-- <div class="col-md-6">
+            <img src="{% static 'assets/img/hero-img-2.webp' %}" alt="Image" class="img-fluid my-5 ">
+          </div> -->
+            <div class="col-md-8 col-lg-6 col-xl-5">
+                <div class="card mx-auto my-5  w-100  w-md-50 border-0  " >
+                  <div class="bg-login text-center mb-5">
+                    <div class="bg-login-overlay"></div>
+                    <div class="position-relative">
+                    <h5 class="text-white font-size-20">Welcome Back !</h5>
+                    <p class="mb-0">Sign in to continue to Delta Monitoring</p>
+                    <a href="/" class="logo logo-admin mt-4">
+                    <img src="{% static 'assets/img/logo-2.png' %}" alt="Cube Logo" height="100">
+                    </a>
+                    </div>
+                    </div>
+                    <!-- <div class="card-header bg-transparent border-0 ">
+                        <div class="row justify-content-start text-start">
+                            <div class="col">
+                                <h1 class=" fw-bolder fs-1">Sign In</h1>  
+                            </div>
+                        </div>
+                    </div> -->
+                    <div class="card-body pt-5  mb-5">
+                        <form class="row g-3 needs-validation" novalidate  action="{% url 'user_login' %}" method="POST" id="login_form"> 
+                          {% include 'form_errors.html' %}
+                          {% include 'master_app/messages.html' %}
+                            {% csrf_token %}
+                            <div class="">
+                              <input type="text" class="form-control " id="exampleInputEmail1" aria-describedby="emailHelp" required="" name="username" autocomplete="off" placeholder="Username" tabindex="1" autofocus="on">
+                              <div class="invalid-feedback">
+                                Please enter a valid username
+                              </div>
+                            </div>
+                            <div class="">
+                              <input type="password" class="form-control mt-1" id="exampleInputPassword1" required="" name="password" autocomplete="off" placeholder="Password" tabindex="2">
+                              
+                              <div class="invalid-feedback">
+                                Please enter a password
+                              </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="row justify-content-start ">
+                                    <div class="col-12">
+                                        <input type="hidden" name="next" value="{{ request.path }}" />
+                                        <button type="submit" class="btn btn-success bg-color-green  py-2 px-4 text-color-dark fw-bold  w-100  "  tabindex="3" style="height: 54px">Login</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                          </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+(function () {
+  'use strict'
+
+  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+  var forms = document.querySelectorAll('.needs-validation')
+
+  // Loop over them and prevent submission
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    })
+})();
+</script>
+{% endblock %}

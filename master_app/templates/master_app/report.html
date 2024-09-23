@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Generate Report{% endblock %}
+
+
+{% block styles %}
+
+<link href="{% static 'assets/vendor/select2/select2.min.css' %}" rel="stylesheet" />
+{% endblock %}
+
+
+{% block content %}
+
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Report</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard_url' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Report</li>
+          </ol>
+        </nav>
+    </div>
+    <section class="section">
+        <div class="container">
+            <div class="row justify-content-center mb-0">
+                <div class="col-6">
+                    <div class="card mx-auto mt-0  w-100  w-md-50 border-0  " >
+                        <div class="bg-login text-center mb-3">
+                            <div class="bg-login-overlay"></div>
+                            <div class="position-relative">
+                            <h5 class="text-white font-size-20">Generate Report</h5>
+                            <p class="mb-0">Get report for a specific team based on captured traffic</p>
+                            <a href="/" class="logo logo-admin mt-4">
+                            <img src="{% static 'assets/img/logo-2.png' %}" alt="Cube Logo" height="100">
+                            </a>
+                            </div>
+                            </div>
+                            <div class="card-body pt-5 mb-1 ">
+                                <form  action="{% url 'generate_report_url' %}" method="POST" id="report_form" class="g-3 needs-validation" novalidate>
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <label for="team_name" class="mb-1 text-color-white">Select Team</label>
+                                        <!-- <input type="text" placeholder="" name="team_name"  class="form-control" autocomplete="off" id="team_name" required="">
+                                        <div class="invalid-feedback">
+                                            Please select a team
+                                        </div> -->
+                                        <select class="select-teams w-100" name="team"  id="team_name" style="height: 54px !important;" required="" autocomplete="off">
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Please select a team
+                                        </div>
+                                    </div>
+                                   
+                                    <div class="my-3 mt-4">
+                                        <button type="submit" class="btn btn-success bg-color-green  py-2 px-4 text-color-dark fw-bold  w-100  "  tabindex="3" style="height: 54px">Generate PDF</button>
+                                    </div>
+                                    <!-- <button type="submit">Generate PDF</button> -->
+                                </form>
+                            </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="{% static 'assets/vendor/select2/select2.min.js' %}"></script>
+
+<script src="{% static 'assets/js/data.js' %}?limit='sadadsas'"></script>
+
+<script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+
+    // let teams = generateTeams(70);
+    let teams = teams_list;
+    let target_url = "{% url 'generate_report_url' %}";
+    let users = users_data;
+    // console.debug(teams)
+
+    // find method to serach for a specific team
+    // console.debug(teams.find(team => team.id === 1)) 
+
+(function () {
+  'use strict'
+
+  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+  var forms = document.querySelectorAll('.needs-validation');
+
+  let token = $("input[name='csrfmiddlewaretoken']").val();
+
+//   console.debug(token)
+
+  // Loop over them and prevent submission
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    });
+
+
+
+    $('.select-teams').select2({
+      data : teams,
+      placeholder: "",
+      allowClear: true
+    });
+
+
+
+    function getMembers(team){
+        let members =  teams.find(i => {
+            if(parseInt(i.id) === parseInt(team)){
+                return i.members;
+            }
+        }).members;
+        return members;
+    }
+
+    function getUserIP(member){
+        let user_ip = users.find(i => {
+            if(parseInt(i.text) === parseInt(member)){
+                return i.ip;
+            }
+        }).ip;
+    }
+
+    $("form#report_form").on("submit", function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        let team = $(".select-teams").val();
+
+        // console.debug($(".select-teams"))
+
+        // get team name for selected option
+        let team_name = $(".select-teams option:selected").text();
+        
+        if(team){
+            $("#team_name").removeClass("is-invalid");
+        } else{
+            $("#team_name").addClass("is-invalid");
+            return false;
+        }
+
+
+    if( $("form#report_form")[0].checkValidity() ){
+        $("form#report_form").removeClass("was-validated");
+    }
+    else{
+        $("form#report_form").addClass("was-validated");
+    }
+
+    
+    // tea
+    // console.debug(team, teams.find(i => {
+    //     if(parseInt(i.id) === parseInt(team)){
+    //         return i.ip
+    //     }
+    // }))
+
+
+    
+    getMembers(team);
+    let postData = {
+        team: team,
+        team_name : team_name,
+        ip_address : teams.find(i => {
+            if(parseInt(i.id) === parseInt(team)){
+                return i.ip
+            }
+        }).ip,
+        // members : teams.find(i => {
+        //     if(parseInt(i.id) === parseInt(team)){
+        //         return i.members
+        //     }
+        // }).members,
+    }
+    
+    if(team){
+        // window.location.href = "{% url 'generate_report_url' %}";
+        $.ajaxSetup({
+            headers: {
+                "X-CSRFToken": token
+            }
+        });
+        $.ajax({
+            url: target_url,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(postData),
+            success: function(data) {
+                var blob=new Blob([data]);
+                var link=document.createElement('a');
+                link.href=window.URL.createObjectURL(blob);
+                link.download=`${team_name}.pdf`;
+                link.click();
+            }
+        });
+    }
+        
+
+        // check form validation before submisison
+        // if(!$(this)[0].checkValidity()){
+        //     $(this).addClass('was-validated');
+        //     return;
+        // }
+        // console.debug(team);
+        
+    })
+
+})();
+</script>
+{% endblock %}
+
+
+<div class="form-group my-3">
+    <label for="user_name" class="mb-1 text-color-white">User</label>
+    <input type="text" placeholder="" name="user_name"  class="form-control" autocomplete="off" id="user_name" required="">
+    <div class="invalid-feedback">
+        Please select a user
+    </div>
+</div> 
+<div class="form-group my-3">
+    <label for="challenge_name" class="mb-1 text-color-white">Challenge</label>
+    <input type="text" placeholder="" name="challenge_name"  class="form-control" autocomplete="off" id="challenge_name" required="">
+    <div class="invalid-feedback">
+        Please select a challenge
+    </div>
+</div>

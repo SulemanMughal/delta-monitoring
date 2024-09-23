@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Commands Executed By User{% endblock %}
+
+{% block styles %}
+<style>
+    body {
+      margin: 0;
+      font-family: neue-haas-unica,sans-serif;
+      font-size: .875rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #a4b1cd;
+      text-align: left;
+      background-color: #141d2b;
+    }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+
+<main id="main" class="main">
+    <section class="section" >
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">Request</th>
+                            <th scope="col">Response</th>
+                          </tr>
+                        </thead>
+                        <tbody id="table_values">
+                          <tr>
+                            <td>
+                                cat flags.txt
+                            </td>
+                            <td>
+                                asdasdasdsadasdasdasdas
+                            </td>
+                          </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>  
+        </div>
+    </section>
+</main>
+
+
+{%  endblock %}
+
+
+{% block scripts %}
+
+<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Base64/1.3.0/base64.min.js" integrity="sha512-IFxgh3q1bUsg/sL6qotMkJZTOvPyYSS6mRSSIVnJndN5j9vWcQ+oJyHkelIkRAOaKgdU1ibHJOs4HX15sPtZKw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+<!-- const byteArray = new Uint8Array([0, 0, 0, 8, 4, 22, 47]);
+const textDecoder = new TextDecoder('utf-8');
+const utf8String = textDecoder.decode(byteArray);
+console.log(utf8String); -->
+
+<!-- const byteArray = Uint8Array.from([0, 0, 0, 8, 4, 22, 47]);
+
+const textDecoder = new TextDecoder('utf-8');
+const utf8String = textDecoder.decode(byteArray);
+
+console.log(utf8String); -->
+
+<script>
+    $(document).ready(function() {
+        // const textDecoder = new TextDecoder('utf-8');
+
+        // // Given string representation of bytes
+        // const byteString = "b'7fc0x91h\ xcx3x1118x?x\0w\x18\\\xP|6e901xoc%\\\\3x\exA-%155xx6";
+
+        // // Convert the string representation to bytes
+        // const bytes = byteString.split('\\x').filter(Boolean).map(hex => parseInt(hex, 16));
+
+        // // Create a Uint8Array from the bytes
+        // const byteArray = new Uint8Array(bytes);
+
+        // // Log the result
+        // console.log(byteArray);
+
+        // const x = textDecoder.decode(byteArray);
+        // console.log(x);
+
+
+
+        $.ajax({
+            url: "{% url 'commands_json_url' %}",
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+                // console.log(JSON.parse(fetched_data.commands));
+                let fetched_data = JSON.parse(data.commands)
+                // console.debug(fetched_data)
+                var table_values = "";
+                for (var i = 0; i < fetched_data.length; i++) {
+                    // let stringA = fetched_data[i].payload.slice(2, -1);
+                    // var decodedStringAtoB = atob(stringA, "UTF-8");
+                    // console.debug(decodedStringAtoB)
+                    // console.debug(atob(fetched_data[i].payload))
+                    // const byteArray = new Uint8Array(fetched_data[i].payload);
+                    // const textDecoder = new TextDecoder('utf-8');
+                    // const utf8String = textDecoder.decode(byteArray);
+                    // console.debug(utf8String)
+
+                    // const byteArray = new Uint8Array(fetched_data[i].payload.length);
+                    // for (let i = 0; i < fetched_data[i].payload.length; i++) {
+                    //     byteArray[i] = fetched_data[i].payload.charCodeAt(i);
+                    // }
+
+                    // const textDecoder = new TextDecoder('utf-8');
+                    // const utf8String = textDecoder.decode(byteArray);
+
+
+
+
+                    table_values += "<tr><td>" + fetched_data[i].payload + "</td><td>" + fetched_data[i].payload + "</td></tr>";
+                }
+                $("#table_values").html(table_values);
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        });
+    });
+</script>
+
+{% endblock %}

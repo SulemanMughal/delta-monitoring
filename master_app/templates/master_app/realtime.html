@@ -1,0 +1,471 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Realtime{% endblock %}
+
+{% block styles %}
+
+<style>
+
+    body {
+        margin: 0;
+        font-family: neue-haas-unica,sans-serif;
+        font-size: .875rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #a4b1cd;
+        text-align: left;
+        background-color: #141d2b;
+    }
+
+/* div#realtime{
+  transition: none !important
+}
+div#realtime:hover{
+  transform: scale(1);
+  box-shadow: none !important;
+} */
+
+    </style>
+    <script src="{% static 'assets/vendor/ag-grid/ag-grid-enterprise.min.js' %}" ></script>
+    <link rel="stylesheet"  href="{% static 'assets/css/custom_ag.css' %}" />
+
+
+{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+
+  
+  {% comment %}
+  <div class="pagetitle">
+    <h1>Live Monitoring</h1>
+    <nav >
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard_url' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Live Monitoring</li>
+      </ol>
+    </nav>
+  </div><!-- End Page Title -->
+
+  {% endcomment %}
+
+
+   
+    
+      <section class="section dashboard">
+        
+        
+
+        <div class="rows d-none">
+          <div class="col">
+            <canvas id="myChart" 
+              style="
+              width:300px;
+              max-width:300px;
+              height: 300px;
+              max-height: 300px;
+              "
+              ></canvas>
+            </div>
+          </div>
+        </div>
+        
+        
+        <div class="row">
+          <div class="col-12">
+            <div class="card bg-transparent p-0" id="realtime">
+              <div class="card-body p-0 bg-transparent">
+                <div id="myGrid" style="height: 85vh; " class="ag-theme-balham"></div>
+              </div>  
+            </div>
+            
+          </div>
+        </div>
+      </section>
+</main>
+
+
+<!-- write complete htlm css to implement a realtime apex chart with dajngo web sockets -->
+
+
+
+
+
+{%  endblock %}
+
+
+{% block scripts %}
+
+
+<script src="{% static 'assets/js/jquery.min.js' %}"></script> 
+
+
+
+<script type="text/javascript" charset="utf-8">
+
+agGrid.LicenseManager.setLicenseKey('SHI_UK_on_behalf_of_Lenovo_Sweden_MultiApp_1Devs6_November_2019__MTU3Mjk5ODQwMDAwMA==e27a8fba6b8b1b40e95ee08e9e0db2cb');
+
+let gridApi;
+
+
+  const columnDefs = [
+    // {
+    //   headerName: "Row",
+    //   valueGetter: "node.rowIndex + 1",
+    //   sortable: true,
+    //   filter: true,
+    //   resizable: true,
+    //   width: 100,
+    //   sortingOrder: [ "desc"],
+    //   minWidth: 100, 
+    //   maxWidth: 100,
+    //     cellStyle: {
+    //       fontSize: '14px'
+    //     }
+
+    // },
+      {headerName: 'Src IP', field: 'src_ip', sortable: true, filter: true, resizable: true, width : 150, maxWidth: 150, minWidth: 150,
+        cellStyle: {
+          fontSize: '14px'
+        }},
+      {headerName: 'Src Port', field: 'src_port', sortable: true, filter: true, resizable: true, width : 130, minWidth: 130, maxWidth: 130,
+        cellStyle: {
+          fontSize: '14px'
+        }},
+      {headerName: 'Dst IP', field: 'dst_ip', sortable: true, filter: true, resizable: true, width : 150, maxWidth: 150, minWidth: 150,
+        cellStyle: {
+          fontSize: '14px'
+        }},
+      {headerName: 'Dst Port', field: 'dst_port', sortable: true, filter: true, resizable: true, width : 130, minWidth: 130, maxWidth: 130,
+        cellStyle: {
+          fontSize: '14px'
+        }},
+      // 
+      {
+        headerName: "Tool",
+        field: "type_tool",
+        sortable: true, 
+        filter: true, 
+        resizable: true, width : 150, minWidth: 150, maxWidth: 150,
+        cellStyle: {
+          fontSize: '14px'
+        },
+        cellRenderer: params => {
+            // put the value in bold
+            return params.value ?  `<span class="badge rounded-pill text-bg-danger text-uppercase">${params.value}</span>`: ""
+            
+        }
+      },
+      {
+        headerName: 'Payload', 
+        field: 'payload', 
+        sortable: true, 
+        filter: true, 
+        resizable: true,
+        cellStyle: {
+          fontSize: '14px',
+          "wordBreak": "normal"
+        },
+        "wrapText": true,
+        "autoHeight": true,
+        
+      },
+  ];
+  const rowData = [
+  ];
+  const gridOptions = {
+      columnDefs: columnDefs,
+      rowData: rowData,
+      onGridReady(params) {
+        params.api.sizeColumnsToFit();
+      }
+  };
+  const eGridDiv = document.querySelector('#myGrid');
+  gridApi = agGrid.createGrid(eGridDiv, gridOptions);
+</script>
+
+<script>
+
+
+
+  function FixedSizeArray(maxSize) {
+      this.array = [];
+      this.maxSize = maxSize;
+  
+      this.push = function (element) {
+          this.array.push(element);
+          this.array.unshift(element)
+  
+          // Trim the array if it exceeds the maxSize
+          if (this.array.length > this.maxSize) {
+              this.array.shift();  // Remove the first element
+          }
+      };
+  
+      this.toArray = function () {
+          return this.array;
+      };
+  
+      this.length = function () {
+          return this.array.length;
+      };
+  }
+  
+    // var lastDate = 0;
+    // var data_chart = []
+    // var TICKINTERVAL = 2000
+    // let XAXISRANGE = 60*2000
+    
+    // function getDayWiseTimeSeries(baseval, count, yrange) {
+    //   var i = 0;
+    //   while (i < count) {
+    //     var x = baseval;
+    //     // var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
+    
+    //     data_chart.push({
+    //       x, y
+    //     });
+    //     lastDate = baseval
+    //     baseval += TICKINTERVAL;
+    //     i++;
+    //   }
+    // }
+    // let initNumber = 10;
+    // getDayWiseTimeSeries(new Date().getTime()-(initNumber-1)*TICKINTERVAL, initNumber, {
+    //   min: 0,
+    //   max: 0
+    // })
+    
+    // function getNewSeries(baseval, yrange) {
+    //   var newDate = baseval + TICKINTERVAL;
+    //   lastDate = newDate
+    //   for(var i = 0; i< data_chart.length - 10; i++) {
+    //     data_chart[i].x = newDate - XAXISRANGE - TICKINTERVAL
+    //     data_chart[i].y = 0
+    //   }
+    
+    //   data_chart.push({
+    //     x: newDate,
+    //     y: Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min
+    //   })
+    // }
+    
+    // function resetData(){
+    //   data_chart = data_chart.slice(data_chart.length - 10, data_chart.length);
+    // }
+  </script>
+
+  <script>
+
+function generateTimestamps() {
+  const timestamps = [];
+  const interval = 2 * 1000; // 2 seconds in milliseconds
+  const duration = 60 * 1000; // 1 minute in milliseconds
+
+  for (let timestamp = Date.now(); timestamp < Date.now() + duration; timestamp += interval) {
+    const formattedTime = new Date(timestamp).toLocaleTimeString('en-US', { hour12: false });
+    timestamps.push(formattedTime);
+  }
+
+  return timestamps;
+}
+
+
+function updateTimestamps(timestamps) {
+  const interval = 2 * 1000; // 2 seconds in milliseconds
+  const duration = 60 * 1000; // 1 minute in milliseconds
+
+  // Calculate the timestamp for the new entry
+  const newTimestamp = Date.now() + duration;
+
+  // Remove old values from the start of the array
+  while (timestamps.length > 0 && timestamps[0] < newTimestamp - duration) {
+    timestamps.shift();
+  }
+
+  // Push the new timestamp to the end of the array
+  timestamps.push(newTimestamp);
+
+  return timestamps;
+}
+
+    const ctx = document.getElementById('myChart');
+
+    // // intial timestamps for x-axis
+    // let timeStamps = [];
+    // for (let i = 0; i < 10; i++) {
+    //   timeStamps.push(i);
+    // }
+
+
+    let timestamps = generateTimestamps();
+  // console.log(timestamps);
+
+  // generate an array of 60 elemtsn with zerop valeu
+  // let data = Array(60).fill(0);
+  
+
+
+    let graphgData = {
+      type: 'line',
+      data: {
+        labels: timestamps,
+        datasets: [{
+          label: '# of Packets',
+          data: [1,2,313,31,546,1,2,313,31,546,1,2,313,31,546,1,2,313,31,546,1,2,313,31,546,1,2,313,31,546],
+          borderWidth: 1
+          , backgoundColor : [
+            'rgba(255, 99, 132, 0.2)',
+            
+          ]
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    }
+    var myChart = new Chart(ctx,graphgData );
+  </script>
+
+
+<script>
+    let data = [];
+    
+// var options = {
+//           series: [{
+//           data: data_chart.slice()
+//         }],
+//           chart: {
+//           id: 'realtime',
+//           height: 350,
+//           type: 'line',
+//           animations: {
+//             enabled: true,
+//             easing: 'linear',
+//             dynamicAnimation: {
+//               speed: 1000
+//             }
+//           },
+//           toolbar: {
+//             show: false
+//           },
+//           zoom: {
+//             enabled: false
+//           }
+//         },
+//         dataLabels: {
+//           enabled: false
+//         },
+//         stroke: {
+//           curve: 'smooth'
+//         },
+//         title: {
+//           text: 'Dynamic Updating Chart',
+//           align: 'left'
+//         },
+//         markers: {
+//           size: 0
+//         },
+//         xaxis: {
+//           type: 'datetime',
+//           range: XAXISRANGE,
+//         },
+//         yaxis: {
+//           max: 100
+//         },
+//         legend: {
+//           show: false
+//         },
+//         };
+
+//         var chart = new ApexCharts(document.querySelector("#chart"), options);
+//         chart.render();
+    var newGraphData = graphgData.data.datasets[0].data;
+    var lastDate = graphgData.data.labels[graphgData.data.labels.length - 1];
+    var wsStart='ws://'
+    var endpoint=wsStart + window.location.host + "/ws/whole1/"
+    var socket = new WebSocket(endpoint)
+    socket.onopen =function(e){
+      console.log('open',e)
+      socket.send(1)
+    }
+    socket.onmessage=function(e){
+      // if([...JSON.parse(e.data)].length == 0){
+      //   return
+      // }
+    data = [...JSON.parse(e.data), ...data]  
+    data = data.slice(0, 1000)
+    gridApi.setGridOption('rowData', data)
+    
+    
+    //
+    // update
+    // update data for axis x
+    // timeStamps = timeStamps.slice(1)
+    // timeStamps.push(lastDate)
+    // chart.updateOptions({
+    //   xaxis: {
+    //     categories: timeStamps,
+    //   }
+    // })
+    // update data for axis y
+    // data_chart = data_chart.slice(1)
+    // data_chart.push(JSON.parse(e.data).length)
+    // chart.updateSeries([{
+    //   data: data_chart
+    // }])
+    
+    // update data for axis x
+
+      // shift old timestamp and pur nw timestamp
+
+
+    timestamps = updateTimestamps(timestamps)
+    // update whole a-axis data
+    
+    // newGraphData.shift()
+    // timestamps.push(lastDate)
+    graphgData.data.labels = timestamps
+
+
+    
+    newGraphData.shift()
+    newGraphData.push(JSON.parse(e.data).length)
+    
+    
+
+    graphgData.data.datasets[0].data = newGraphData
+    // myChart.update()
+    // getNewSeries(lastDate, {
+    //   min: 10,
+    //   max: 120
+    // })
+    // chart.updateSeries([{
+    //   data: data_chart
+    // }])
+    setTimeout(function(){ socket.send(1); }, 2000);    
+    // socket.send(1);
+    }
+</script>
+
+{% endblock %}
+
+<script>
+//   $(document).ready(function() {
+//         window.setInterval(function () {
+//         getNewSeries(lastDate, {
+//           min: 10,
+//           max: 90
+//         })
+      
+//         chart.updateSeries([{
+//           data: data_chart
+//         }])
+//       }, 1000)
+// } );
+</script>

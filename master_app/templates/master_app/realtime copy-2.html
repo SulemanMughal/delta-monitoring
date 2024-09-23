@@ -1,0 +1,417 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Realtime{% endblock %}
+
+{% block styles %}
+
+<style>
+
+    body {
+        margin: 0;
+        font-family: neue-haas-unica,sans-serif;
+        font-size: .875rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #a4b1cd;
+        text-align: left;
+        background-color: #141d2b;
+    }
+    </style>
+  
+  
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/vendor/gridjs/mermaid.min.css' %}" />
+  
+
+
+
+  
+
+{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+  <div class="pagetitle">
+    <h1>Live Monitoring</h1>
+    <nav >
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard_url' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Live Monitoring</li>
+      </ol>
+    </nav>
+  </div><!-- End Page Title -->
+
+
+    <!-- <h1 id="main_2" >Counter</h1> -->
+    <!-- <select class="form-select form-select-sm" aria-label=".form-select-sm example">
+      <option selected>Open this select menu</option>
+      <option value="1">One</option>
+      <option value="2">Two</option>
+      <option value="3">Three</option>
+    </select> -->
+    
+      <section class="section dashboard">
+        
+        <div class="row d-none">
+          <div class="col-lg-12">
+            <div class="row">
+              <div class="col-3">
+                <div class="card info-card sales-card">
+                    <div class="card-body">
+                      <h5 class="card-title">Packets Per Second</h5>
+                      <div class="d-flex align-items-center">
+                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                          <i class="fa-brands fa-hive"></i>
+                        </div>
+                        <div class="ps-3">
+                          <h6 id="main_2" class="h6 counter">{{ total_packets }}</h6>
+                        </div>
+                        <!-- <a href="{% url 'document_list_url' %}" class="btn btn-primary stretched-link bg-transparent border-0 "></a> -->
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              <div class="col-3">
+                <div class="card info-card sales-card">
+                    <div class="card-body">
+                      <h5 class="card-title">Total Packets</h5>
+                      <div class="d-flex align-items-center">
+                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                          <i class="fa-regular fa-envelope"></i>
+                        </div>
+                        <div class="ps-3">
+                          <h6 id="total_packets" class="counter h6">{{ total_packets }}</h6>
+                        </div>
+                        <!-- <a href="{% url 'document_list_url' %}" class="btn btn-primary stretched-link bg-transparent border-0 "></a> -->
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              
+            </div>
+          </div>  
+        </div>
+
+        <div class="rows d-none">
+          <div class="col">
+            <div id="chart">
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <div class="card bg-transparent p-0">
+                  <div class="card-body p-0 bg-transparent">
+                      <div id="table"></div>
+                  </div>  
+              </div>
+              </div>
+        </div>
+      </section>
+</main>
+
+
+
+{%  endblock %}
+
+
+{% block scripts %}
+
+
+<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="{% static  'assets/vendor/gridjs/gridjs.production.min.js' %}"></script>
+<script src="{% static  'assets/js/utils.js' %}"></script>
+
+
+
+<script>
+
+
+
+  function FixedSizeArray(maxSize) {
+      this.array = [];
+      this.maxSize = maxSize;
+  
+      this.push = function (element) {
+          this.array.push(element);
+          this.array.unshift(element)
+  
+          // Trim the array if it exceeds the maxSize
+          if (this.array.length > this.maxSize) {
+              this.array.shift();  // Remove the first element
+          }
+      };
+  
+      this.toArray = function () {
+          return this.array;
+      };
+  
+      this.length = function () {
+          return this.array.length;
+      };
+  }
+  
+    var lastDate = 0;
+    var data_chart = []
+    var TICKINTERVAL = 1000
+    let XAXISRANGE = 9000
+    
+    function getDayWiseTimeSeries(baseval, count, yrange) {
+      var i = 0;
+      while (i < count) {
+        var x = baseval;
+        var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
+    
+        data_chart.push({
+          x, y
+        });
+        lastDate = baseval
+        baseval += TICKINTERVAL;
+        i++;
+      }
+    }
+    let initNumber = 10;
+    getDayWiseTimeSeries(new Date().getTime()-(initNumber-1)*TICKINTERVAL, initNumber, {
+      min: 0,
+      max: 5000
+    })
+    
+    function getNewSeries(baseval, yrange) {
+      var newDate = baseval + TICKINTERVAL;
+      lastDate = newDate
+    
+      for(var i = 0; i< data_chart.length - 10; i++) {
+        // IMPORTANT
+        // we reset the x and y of the data which is out of drawing area
+        // to prevent memory leaks
+        data_chart[i].x = newDate - XAXISRANGE - TICKINTERVAL
+        data_chart[i].y = 0
+      }
+    
+      data_chart.push({
+        x: newDate,
+        y: Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min
+      })
+    }
+    
+    function resetData(){
+      // Alternatively, you can also reset the data at certain intervals to prevent creating a huge series 
+      data_chart = data_chart.slice(data_chart.length - 10, data_chart.length);
+    }
+  </script>
+
+
+<script>
+
+
+
+
+    let gridInstance ;
+
+    let data = [];
+    // let data  = new FixedSizeArray(2000);
+;
+
+    
+var options = {
+          series: [{
+          data: data_chart.slice()
+        }],
+          chart: {
+          id: 'realtime',
+          height: 350,
+          type: 'line',
+          animations: {
+            enabled: true,
+            easing: 'linear',
+            dynamicAnimation: {
+              speed: 1000
+            }
+          },
+          toolbar: {
+            show: false
+          },
+          zoom: {
+            enabled: false
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          curve: 'smooth'
+        },
+        title: {
+          text: 'Dynamic Updating Chart',
+          align: 'left'
+        },
+        markers: {
+          size: 0
+        },
+        xaxis: {
+          type: 'datetime',
+          range: XAXISRANGE,
+        },
+        yaxis: {
+          max: 100
+        },
+        legend: {
+          show: false
+        },
+        };
+
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+
+function initializeGrid(data) {
+    const gridContainer = document.getElementById('table');
+    gridContainer.innerHTML = ''; // Clear the container
+    
+    // console.debug(gridInstance)
+    if (gridInstance) {
+    //   gridInstance.destroy(); // Destroy the existing instance
+    }
+
+    // gridInstance = new gridjs.Grid({
+    //   columns: ['id', 'name', 'age'],
+    //   data: data,
+    // }).render('#grid');
+    gridInstance = new gridjs.Grid({
+  columns: ["Dst IP", "Src IP", "Src Port" , "Dst Port", {
+    name : "Payload",
+    width : "50%"
+  }],
+  style : {
+    'table': {
+      'width': '100% !important'
+    }},
+  search: false,
+	sort: false,
+    height : "78vh",
+	pagination: false,
+	className: {
+    table: 'table-body'
+  },
+  data: data,
+	language: {
+    'search': {
+      'placeholder': 'Searching ...'
+    }
+  }
+})
+gridInstance.updateConfig({data: data}).render(document.getElementById("table")).forceRender();
+
+    
+  }
+
+  function updateGridData(newData) {
+    // Update the grid configuration and reinitialize
+    // console.debug(gridInstance?.data)
+    // let existingData = gridInstance?.data().rows; // Get existing data
+    // let combinedData;
+    // // console.debug(existingData)
+    // if(existingData){
+    //     combinedData = [...existingData, ...newData]; // Concatenate existing and new data
+    // }
+    // else{
+        let combinedData = [...data]; // Concatenate existing and new data
+    // }
+  
+
+    // initializeGrid(combinedData);
+    initializeGrid(combinedData);
+    // new_table.forceRender();
+    
+  }
+
+  
+
+    number_one=document.getElementById('main_2');
+    total_packets=document.getElementById('total_packets');
+    var wsStart='ws://'
+    var endpoint=wsStart + window.location.host + "/ws/whole1/"
+    // var endpoint=wsStart 
+    var socket = new WebSocket(endpoint)
+    // console.log(endpoint)    
+    
+    
+    socket.onopen =function(e){
+    console.log('open',e)
+    socket.send(1)
+    }
+    
+    
+    socket.onmessage=function(e){
+    // console.log('message',e)s
+    // data
+
+    
+    // data.unshift(...JSON.parse(e.data))
+    // data = [...JSON.parse(e.data)].slice(0, 10)
+    data = [...JSON.parse(e.data)]
+
+    // console.debug(data)
+    updateGridData(JSON.parse(e.data));
+
+    // custom_gridjs.updateConfig({
+    //     data : JSON.parse("[[\"23.201.131.89\", \"192.168.0.143\", \"IPv4\", \"\\u0000\"], [\"104.16.125.175\", \"192.168.0.143\", \"IPv4\", \"\\u0000\"], [\"192.168.0.143\", \"104.16.125.175\", \"IPv4\", \"\"], [\"192.168.0.143\", \"23.201.131.89\", \"IPv4\", \"\"], [\"23.201.131.89\", \"192.168.0.143\", \"IPv4\", \"\\u0017\\u0003\\u0003\\u0000\\u0013\\u0086}d}m\\u00d2\\u00ac\\u00b9\\u0003\\u00d8\\u00b4\\u00d7b\\u00d4Q\\u0083|q\\u00b9\"], [\"23.201.131.89\", \"192.168.0.143\", \"IPv4\", \"\"], [\"192.168.0.143\", \"23.201.131.89\", \"IPv4\", \"\\u0000\\u0000\\u0000\\u0000\\u0000\\u0000\"], [\"192.168.0.143\", \"23.201.131.89\", \"IPv4\", \"\\u0017\\u0003\\u0003\\u0000\\u0013\\u0015\\u0017R\\u0018\\u00a4\\r\\u00edv\\u00c1\\u00a8}{\\u00cd\\u00ae\\u009d\\u00d8\\u00b8\\u0014W\"], [\"192.168.0.143\", \"23.201.131.89\", \"IPv4\", \"\\u0000\\u0000\\u0000\\u0000\\u0000\\u0000\"], [\"23.201.131.89\", \"192.168.0.143\", \"IPv4\", \"\"], [\"192.168.0.143\", \"23.201.131.89\", \"IPv4\", \"\\u0000\\u0000\\u0000\\u0000\\u0000\\u0000\"]]")
+    // })
+//     new gridjs.Grid({
+//   data: [
+//     { name: 'John', email: 'john@example.com' },
+//     { name: 'Mark', email: 'mark@gmail.com' },
+//     { name: 'Eoin', email: 'eo3n@yahoo.com' },
+//     { name: 'Nisen', email: 'nis900@gmail.com' }
+//   ]
+// });
+
+    // number_one.innerHTML=data.length;
+    // console.debug(JSON.parse(e.data).length)
+    // console.debug(e.data)
+    number_one.innerHTML=JSON.parse(e.data).length;
+    total_packets.innerHTML= parseInt(total_packets.innerHTML) +  JSON.parse(e.data).length;
+    // delay a time of 2 sescons
+    setTimeout(function(){ socket.send(1); }, 2000);
+    
+    
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+</script>
+
+
+
+
+
+
+<script>
+  $(document).ready(function() {
+  //   var TICKINTERVAL = 86400000
+  // let XAXISRANGE = 777600000
+    
+      
+
+
+        window.setInterval(function () {
+        getNewSeries(lastDate, {
+          min: 10,
+          max: 90
+        })
+      
+        chart.updateSeries([{
+          data: data_chart
+        }])
+      }, 1000)
+} );
+</script>
+
+
+
+{% endblock %}

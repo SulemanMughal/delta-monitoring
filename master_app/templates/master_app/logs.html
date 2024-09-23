@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Logs Analysis{% endblock %}
+
+{% block styles %}
+<style>
+
+body {
+    margin: 0;
+    font-family: neue-haas-unica,sans-serif;
+    font-size: .875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #a4b1cd;
+    text-align: left;
+    background-color: #141d2b;
+}
+</style>
+
+<link rel="stylesheet" href="{% static  'assets/vendor/aos/aos.css' %}" />
+<script src="{% static 'assets/vendor/ag-grid/ag-grid-enterprise.min.js' %}" ></script>
+
+<link href="{% static 'assets/vendor/select2/select2.min.css' %}" rel="stylesheet" />
+
+<link rel="stylesheet"  href="{% static 'assets/css/custom_ag.css' %}" />
+<link rel="stylesheet"  href="{% static 'assets/css/load-awesome.css' %}" />
+
+
+<style>
+
+.overlay {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.overlay__inner {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+.overlay__content {
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+</style>
+
+{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+    <section class="section dashboard">
+        <div class="container-fluid">
+            <div class="row"
+        data-aos="zoom-out"
+          data-aos-offset="0"
+          data-aos-delay="0"
+          data-aos-duration="1000"
+          data-aos-easing="ease-in-out"
+          data-aos-mirror="true"
+          data-aos-once="true"
+          data-aos-anchor-placement="top-center"
+    >
+      <div class="col-12">
+        <div class="card bg-transparent p-0">
+          <div class="card-body p-0 bg-transparent">
+            <div id="myGrid" style="height: 81vh; " class="ag-theme-balham"></div>
+          </div>  
+        </div>
+        
+      </div>
+    </div>
+        </div>
+    </section>
+</main>
+
+
+{%  endblock %}
+
+
+{% block scripts %}
+<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
+<script>
+
+    agGrid.LicenseManager.setLicenseKey('SHI_UK_on_behalf_of_Lenovo_Sweden_MultiApp_1Devs6_November_2019__MTU3Mjk5ODQwMDAwMA==e27a8fba6b8b1b40e95ee08e9e0db2cb');
+
+    let gridApi;
+
+    AOS.init();
+    let chart_url = "{% url 'logs_view_json_url' %}";
+
+
+
+
+
+    // Populate Initial Data
+    function getFilterData(){
+    $.ajax({
+      url: chart_url,
+      type: 'GET',
+    //   data: {
+    //     'query': query
+    //   },
+      dataType: 'json',
+      success: function (response) {
+        console.debug(response);
+        gridApi.setGridOption('rowData', JSON.parse(response.initial_packets))
+      },
+      error: function (data) {
+        console.debug(data);
+      },
+      complete: function(){
+        // $("div#loader").hide();
+        // console.debug("ASdasd")
+      }
+    });
+  }
+
+
+
+  
+const columnDefs = [
+    // {
+    //   headerName: "Row",
+    //   valueGetter: "node.rowIndex + 1",
+    //   sortable: true,
+    //   filter: true,
+    //   resizable: true,
+    //   width: 100,
+    //   sortingOrder: [ "desc"],
+    //   minWidth: 100, 
+    //   maxWidth: 100,
+    //     cellStyle: {
+    //       fontSize: '14px'
+    //     }
+
+    // },
+    {headerName: 'Time', field: 'time', sortable: true, filter: true, resizable: true, width : 120, maxWidth: 120, minWidth: 120,
+        cellStyle: {
+          fontSize: '16px'
+        },
+        // cellRenderer: function(params) {
+        //   return moment(params.value).format('HH:mm:ss');
+        // }
+    },
+      {headerName: 'Src IP', field: 'source_ip', sortable: true, filter: true, resizable: true, width : 150, maxWidth: 150, minWidth: 150,
+        cellStyle: {
+          fontSize: '16px'
+        }},
+    //   {headerName: 'Src Port', field: 'src_port', sortable: true, filter: true, resizable: true, width : 130, minWidth: 130, maxWidth: 130,
+    //     cellStyle: {
+    //       fontSize: '16px'
+    //     }},
+      {headerName: 'Dst IP', field: 'destination_ip', sortable: true, filter: true, resizable: true, width : 150, maxWidth: 150, minWidth: 150,
+        cellStyle: {
+          fontSize: '16px'
+        }},
+    //   {headerName: 'Dst Port', field: 'dst_port', sortable: true, filter: true, resizable: true, width : 130, minWidth: 130, maxWidth: 130,
+    //     cellStyle: {
+    //       fontSize: '16px'
+    //     }
+    //     },
+        {headerName: 'Attack', field: 'attack_name', sortable: true, filter: true, resizable: true, width : 170, minWidth: 170, maxWidth: 170,
+        cellStyle: {
+          fontSize: '16px',
+          "wordBreak": "normal"
+        },
+        "wrapText": true,
+        "autoHeight": true,
+        },
+        {headerName: 'Severity', field: 'severity', sortable: true, filter: true, resizable: true, width : 130, minWidth: 130, maxWidth: 130,
+        cellStyle: {
+          fontSize: '16px'
+        }
+        },
+      {
+        headerName: 'Payload', 
+        field: 'payload', 
+        sortable: true, 
+        filter: true, 
+        resizable: true,
+        cellStyle: {
+          fontSize: '16px',
+          "wordBreak": "normal"
+        },
+        "wrapText": true,
+        "autoHeight": true,
+        
+      },
+  ];
+  const rowData = [
+  ];
+  const gridOptions = {
+      columnDefs: columnDefs,
+      // pagination:true,
+      rowData: rowData,
+      onGridReady(params) {
+        params.api.sizeColumnsToFit();
+      }
+  };
+  const eGridDiv = document.querySelector('#myGrid');
+  gridApi = agGrid.createGrid(eGridDiv, gridOptions);
+
+
+  getFilterData();
+
+
+</script>
+
+{% endblock %}

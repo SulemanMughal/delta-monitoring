@@ -1,0 +1,1036 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search{% endblock %}
+
+{% block styles %}
+
+
+<style>
+  body {
+      margin: 0;
+      font-family: neue-haas-unica,sans-serif;
+      font-size: .875rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #a4b1cd;
+      text-align: left;
+      background-color: #141d2b;
+  }
+  </style>
+
+<link rel="stylesheet" href="{% static  'assets/vendor/aos/aos.css' %}" />
+<link rel="stylesheet" href="{% static  'assets/vendor/daterange/daterangepicker.css' %}" />
+
+
+<script src="{% static 'assets/vendor/ag-grid/ag-grid-enterprise.min.js' %}" ></script>
+
+
+
+<link href="{% static 'assets/vendor/select2/select2.min.css' %}" rel="stylesheet" />
+
+<link rel="stylesheet"  href="{% static 'assets/css/custom_ag.css' %}" />
+<link rel="stylesheet"  href="{% static 'assets/css/load-awesome.css' %}" />
+
+<style>
+
+.overlay {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.overlay__inner {
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+.overlay__content {
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+</style>
+
+
+
+
+
+{% endblock %}
+
+{% block content %}
+
+
+
+<main id="main" class="main">
+  {% comment %}
+    <div class="pagetitle d-none">
+        <h1>Search</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard_url' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Search</li>
+            {% if search_query %}
+                <li class="breadcrumb-item active">{{ search_query }}</li>
+            {% endif %}
+          </ol>
+        </nav>
+    </div>
+  {% endcomment %}
+    <section class="section filter-page" >
+      <div class="container-fluid">
+        <div class="row mb-3">
+          <div class="col-8">
+            <div class="form-group">
+              <label for="formGroupExampleInput5" class="mb-1">Search keywork</label>
+              <input type="text" placeholder="Search " name="query" value="{{ search_query|default:'' }}" class="form-control  search" style="height: 40px !important;" autocomplete="off" id="query" required="">
+              <div class="invalid-feedback">
+                  Please enter a search term.
+                </div>
+
+            </div>  
+          </div>
+          <div class="col-4">
+            <div class="form-group"
+            
+              data-aos="fade-right"
+              data-aos-offset="0"
+              data-aos-delay="50"
+              data-aos-duration="1000"
+              data-aos-easing="ease-in-out"
+              data-aos-mirror="true"
+              data-aos-once="true"
+              data-aos-anchor-placement="top-center"
+            >
+              <label for="formGroupExampleInput5" class="mb-1">Date & Time Range</label>
+              <input type="text" name="datetimes" id="timeline" />
+            </div>
+          </div>
+        </div>
+
+        <!-- different filters -->
+        <div class="row mb-1 ">
+          <!-- Teams Filter -->
+          <div class="col-2">
+            <div class="form-group"
+              data-aos="zoom-in"
+              data-aos-offset="0"
+              data-aos-delay="50"
+              data-aos-duration="1000"
+              data-aos-easing="ease-in-out"
+              data-aos-mirror="true"
+              data-aos-once="true"
+              data-aos-anchor-placement="top-center"
+            >
+              <label for="formGroupExampleInput" class="mb-1">Filter Teams</label>
+              <select class="select-teams w-100" name="teams[]"  id="formGroupExampleInput">
+              </select>
+            </div>
+          </div>
+          <!-- User Filter -->
+          <div class="col-2">
+            <div class="form-group"
+            
+            data-aos="zoom-in"
+            data-aos-offset="0"
+            data-aos-delay="100"
+            data-aos-duration="1000"
+            data-aos-easing="ease-in-out"
+            data-aos-mirror="true"
+            data-aos-once="true"
+            data-aos-anchor-placement="top-center"
+            >
+              <label for="formGroupExampleInput2" class="mb-1">Filter Users</label>
+              <select class="select-users w-100" name="users[]"  id="formGroupExampleInput2">
+              </select>
+            </div>
+          </div>
+          <!-- Challenges Filter -->
+          <div class="col-2">
+            <div class="form-group"
+            data-aos="zoom-in"
+            data-aos-offset="0"
+            data-aos-delay="150"
+            data-aos-duration="1000"
+            data-aos-easing="ease-in-out"
+            data-aos-mirror="true"
+            data-aos-once="true"
+            data-aos-anchor-placement="top-center"
+            >
+              <label for="formGroupExampleInput3" class="mb-1">Filter Challenges</label>
+              <select class="select-challenges w-100" name="challenges[]"  id="formGroupExampleInput3">
+              </select>
+            </div>
+          </div>
+          <!-- Src Port Filter -->
+          <div class="col-2">
+            <div class="form-group"
+            
+            data-aos="zoom-in"
+            data-aos-offset="0"
+            data-aos-delay="200"
+            data-aos-duration="1000"
+            data-aos-easing="ease-in-out"
+            data-aos-mirror="true"
+            data-aos-once="true"
+            data-aos-anchor-placement="top-center"
+            >
+              <label for="formGroupExampleInput4" class="mb-1">Filter Src Ports</label>
+              <select class="select-src-port w-100" name="src_pors[]"  id="formGroupExampleInput4">
+              </select>
+            </div>
+          </div>
+          <!-- Dst Port Filter -->
+          <div class="col-2">
+            <div class="form-group"
+            data-aos="zoom-in"
+            data-aos-offset="0"
+            data-aos-delay="250"
+            data-aos-duration="1000"
+            data-aos-easing="ease-in-out"
+            data-aos-mirror="true"
+            data-aos-once="true"
+            data-aos-anchor-placement="top-center"
+            >
+              <label for="formGroupExampleInput5" class="mb-1">Filter Dst Ports</label>
+              <select class="select-dst-port w-100" name="dst_ports[]" id="formGroupExampleInput5">
+              </select>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-group my-3 mt-4"
+            data-aos="zoom-in"
+            data-aos-offset="0"
+            data-aos-delay="250"
+            data-aos-duration="1000"
+            data-aos-easing="ease-in-out"
+            data-aos-mirror="true"
+            data-aos-once="true"
+            data-aos-anchor-placement="top-center"
+            >
+              <button class=" btn btn-success bg-color-green  py-2 px-4 text-color-dark fw-bold  w-100" type="button" id="apply_filter" style="height: 54px">
+                Apply Filter
+              </button>
+            </div>
+          </div>
+          <!-- Datetime range -->
+<!--             
+          <div class="col-2">
+            
+          </div> -->
+
+        </div>  
+
+        
+
+        
+
+
+
+        <!-- grid js -->
+          <div class="row d-none"
+          
+          data-aos="zoom-out"
+          data-aos-offset="0"
+          data-aos-delay="0"
+          data-aos-duration="1000"
+          data-aos-easing="ease-in-out"
+          data-aos-mirror="true"
+          data-aos-once="true"
+          data-aos-anchor-placement="top-center"
+          >
+              <div class="col-12">
+                  <div class="card bg-transparent"
+                 
+                  >
+                      <div class="card-body py-4 px-0 bg-transparent" id="inintial_table">
+                          <div id="table"></div>
+                      </div>  
+                      <div class="card-body py-4 px-0 bg-transparent" id="filter_table">
+                        <div id="table_2"></div>
+                    </div>  
+                  </div>
+                  
+              </div>
+          </div>
+      </div>
+    </section>
+
+    <!-- apex chart -->
+    <div class="row mb-3 d-none">
+      <div class="col-12">
+          <div class="card " 
+              data-aos="fade-down"
+              data-aos-offset="0"
+              data-aos-delay="50"
+              data-aos-duration="1000"
+              data-aos-easing="ease-in-out"
+              data-aos-mirror="true"
+              data-aos-once="true"
+              data-aos-anchor-placement="top-center"
+          >
+              <div class="card-body bg-transparent">
+                  <div id="line_chart"></div>
+              </div>  
+          </div>
+      </div>
+    </div>  
+
+
+    <div class="row"
+        data-aos="zoom-out"
+          data-aos-offset="0"
+          data-aos-delay="0"
+          data-aos-duration="1000"
+          data-aos-easing="ease-in-out"
+          data-aos-mirror="true"
+          data-aos-once="true"
+          data-aos-anchor-placement="top-center"
+    >
+      <div class="col-12">
+        <div class="card bg-transparent p-0">
+          <div class="card-body p-0 bg-transparent">
+            <div id="myGrid" style="height: 68vh; " class="ag-theme-balham"></div>
+          </div>  
+        </div>
+        
+      </div>
+    </div>
+    <div class="row d-none">
+      <div class="col-12">
+          {% include 'master_app/filter_pagination_btns.html' %}
+      </div>
+    </div>
+
+      
+      
+</main> 
+
+<div class="overlay" id="loader">
+  <div class="overlay__inner">
+      <div class="overlay__content">
+        <div class="la-line-scale-pulse-out la-3x">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+        
+      </div>
+  </div>
+</div>
+
+{%  endblock %}
+
+
+{% block scripts %}
+
+<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<!-- <script src="{% static  'assets/vendor/gridjs/gridjs.production.min.js' %}"></script> -->
+<script src="{% static  'assets/js/utils.js' %}"></script>
+
+<script src="{% static 'assets/js/data.js' %}?limit='sadadsas'"></script>
+
+<!-- <script src="{% static 'assets/vendor/selectize/selectize.min.js' %}" ></script> -->
+
+
+<script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
+<script src="{% static 'assets/vendor/izitoast/iziToast.min.js' %}"></script>
+
+
+<script src="{% static 'assets/vendor/select2/select2.min.js' %}"></script>
+
+
+<script type="text/javascript" src="{% static 'assets/vendor/daterange/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'assets/vendor/daterange/daterangepicker.min.js' %}"></script>
+
+
+<script>
+  // $("div#loader").hide();
+  AOS.init();
+
+  // target url to fetch data for chart 
+  const chart_url = "{% url 'search_chart_json_url' %}";
+
+  // console.debug(chart_url)
+
+  const generatedSrcPorts = generateSrcPorts(30);
+  const generatedDstPorts = generateDstPorts(30);
+
+  // let teams = generateTeams(70);
+  let teams = teams_list;
+  let users = users_data;
+  let challenges = challenges_data;
+
+  // console.debug(teams, users, challenges)
+
+  
+
+
+  let pagination_data = {
+
+  };
+
+  let search_query = "";
+
+  // total number of pages
+  let total_pages = 16;
+
+  let is_filter_applied = false;
+
+  let current_page = 1;
+  let next_page = current_page;
+  let previous_page = current_page;
+</script>
+
+
+
+<script type="text/javascript" charset="utf-8">
+  
+agGrid.LicenseManager.setLicenseKey('SHI_UK_on_behalf_of_Lenovo_Sweden_MultiApp_1Devs6_November_2019__MTU3Mjk5ODQwMDAwMA==e27a8fba6b8b1b40e95ee08e9e0db2cb');
+
+let gridApi;
+
+function clearPaginationBtns(){
+  // except first and last
+console.debug("Clear pagination buttons")
+// console.debug($("#pagination_block .page-item:not(.first):not(.last)"))
+
+// $("#pagination_block").remove();
+
+// $("#pagination_block .page-item:not(.first):not(.last)").remove();
+$("#pagination_block .page-item:not(.first):not(.last)").remove();
+$("#pagination_block .next, #pagination_block .previous").data("page", 1);
+
+  // $("#pagination_block .page-item").remove();
+
+  // // delay 1 second
+  // setTimeout(function(){
+  //   // $("#pasgination_block").remove();
+  // }, 1000)
+
+  // for(var index = 10)
+
+
+}
+
+function updatePaginationBtns(pages=0){
+
+  
+
+
+
+console.debug("Pages Pages", pages);
+
+
+if (pages > 10) {
+  for (let i = 1; i <= 2; i++) {
+    if (i === 1) {
+      $("#pagination_block .last").before(`<li class="page-item active" data-parent="${i}"><button class="page-link" data-page="${i}" >${i}</button></li>`);
+    } else {
+      $("#pagination_block .last").before(`<li class="page-item" data-parent="${i}"><button class="page-link" data-page="${i}">${i}</button></li>`);
+    }
+  }
+  $("#pagination_block .last").before(`<li class="page-item disabled dots-1" data-parent="dots"><button class="page-link" data-page="dots">...</button></li>`);
+  $("#pagination_block .last").before(`<li class="page-item disabled dots" data-parent="dots"><button class="page-link" data-page="dots">...</button></li>`);
+  for (let i = pages - 1; i <= pages; i++) {
+    $("#pagination_block .last").before(`<li class="page-item" data-parent="${i}"><button class="page-link" data-page="${i}">${i}</button></li>`);
+  }
+} else {
+  for (let i = 1; i <= pages; i++) {
+    if (i === 1) {
+      $("#pagination_block .last").before(`<li class="page-item" data-parent="${i}"><button class="page-link" data-page="${i}" >${i}</button></li>`);
+    } else {
+      $("#pagination_block .last").before(`<li class="page-item" data-parent="${i}"><button class="page-link" data-page="${i}">${i}</button></li>`);
+    }
+  }
+}
+// $("#pagination_block .next").click();
+}
+
+
+
+function getData(search_query, status = false){
+    $.ajax({
+      url: "{% url 'search_json_url' %}",
+      type: 'GET',
+      data  :{
+        search_query : search_query,
+      },
+      dataType: 'json',
+      success: function (data) {
+        pagination_data = data?.pagination;
+        total_pages = pagination_data?.total_pages;
+        if(status){
+          clearPaginationBtns();
+          console.debug(pagination_data?.total_pages)
+          updatePaginationBtns(pages=data?.pagination?.total_pages);
+          // current_page = 0;
+          // next_page = 0;
+          // previous_page = 0;
+
+          // 
+
+          $("#pagination-counter").html(`${data?.pagination?.count}`)
+        }
+        gridApi.setGridOption('rowData', JSON.parse(data.initial_packets))
+      },
+      error: function (data) {
+        console.debug(data)
+      },
+      complete : function(){
+        $("div#loader").hide();
+      }
+    });
+  }
+
+
+  
+  function getFilterData(query, status=false){
+  console.debug("Filtered Method Requested")
+    $.ajax({
+      url: chart_url,
+      type: 'GET',
+      data: {
+        'query': query
+      },
+      dataType: 'json',
+      success: function (update_data) {
+        pagination_update_data = update_data?.pagination;
+        console.debug(update_data?.pagination)
+        // total_pages = pagination_data?.total_pages;
+        if(status){
+          
+          clearPaginationBtns();
+          updatePaginationBtns(pages=update_data?.pagination?.total_pages);
+          current_page = 1;
+          next_page = 0;
+          previous_page = 0;
+          $("#pagination-counter").html(`${update_data?.pagination?.count}`)
+        }
+        // console.debug(JSON.parse(data.initial_packets));
+
+        //   // Clear row data
+        //   gridApi.setRowData([]);
+        //   gridApi.applyTransaction({ remove : [gridApi.data] });
+          // gridApi.refreshRows();
+
+          // console.debug("Inside FIltered Data: ", update_data?.initial_packets)
+
+// Rest of the code...
+        gridApi.setGridOption('rowData', JSON.parse(update_data?.initial_packets))
+        
+        // gridApi.hideOverlay();
+      },
+      error: function (data) {
+        console.debug(data);
+      },
+      complete: function(){
+        $("div#loader").hide();
+        // console.debug("ASdasd")
+      }
+    });
+  }
+
+
+const columnDefs = [
+    // {
+    //   headerName: "Row",
+    //   valueGetter: "node.rowIndex + 1",
+    //   sortable: true,
+    //   filter: true,
+    //   resizable: true,
+    //   width: 100,
+    //   sortingOrder: [ "desc"],
+    //   minWidth: 100, 
+    //   maxWidth: 100,
+    //     cellStyle: {
+    //       fontSize: '14px'
+    //     }
+
+    // },
+    {headerName: 'Time', field: 'time', sortable: true, filter: true, resizable: true, width : 120, maxWidth: 120, minWidth: 120,
+        cellStyle: {
+          fontSize: '16px'
+        },
+        // cellRenderer: function(params) {
+        //   return moment(params.value).format('HH:mm:ss');
+        // }
+    },
+      {headerName: 'Src IP', field: 'source_ip', sortable: true, filter: true, resizable: true, width : 150, maxWidth: 150, minWidth: 150,
+        cellStyle: {
+          fontSize: '16px'
+        }},
+      {headerName: 'Src Port', field: 'src_port', sortable: true, filter: true, resizable: true, width : 130, minWidth: 130, maxWidth: 130,
+        cellStyle: {
+          fontSize: '16px'
+        }},
+      {headerName: 'Dst IP', field: 'destination_ip', sortable: true, filter: true, resizable: true, width : 150, maxWidth: 150, minWidth: 150,
+        cellStyle: {
+          fontSize: '16px'
+        }},
+      {headerName: 'Dst Port', field: 'dst_port', sortable: true, filter: true, resizable: true, width : 130, minWidth: 130, maxWidth: 130,
+        cellStyle: {
+          fontSize: '16px'
+        }},
+      {
+        headerName: 'Payload', 
+        field: 'payload', 
+        sortable: true, 
+        filter: true, 
+        resizable: true,
+        cellStyle: {
+          fontSize: '16px',
+          "wordBreak": "normal"
+        },
+        "wrapText": true,
+        "autoHeight": true,
+        
+      },
+  ];
+  const rowData = [
+  ];
+  const gridOptions = {
+      columnDefs: columnDefs,
+      // pagination:true,
+      rowData: rowData,
+      onGridReady(params) {
+        params.api.sizeColumnsToFit();
+      }
+  };
+  const eGridDiv = document.querySelector('#myGrid');
+  gridApi = agGrid.createGrid(eGridDiv, gridOptions);
+
+
+  // get initial data
+  getData(search_query, status = true);
+
+  // console.debug(total_pages)
+
+  
+
+  
+
+</script>
+
+
+
+<script>
+// console.debug(teams)
+$(document).ready(function() {
+    $('.select-teams').select2({
+      data : [],
+      placeholder: "",
+      allowClear: true,
+      tags : true,
+      createTag: function (params) {
+        return {
+          id: params.term,
+          text: params.term,
+          newOption: true
+        }
+      }
+    });
+    $('.select-users').select2({
+      data : [],
+      placeholder: "",
+      allowClear: true,
+      tags : true,
+      createTag: function (params) {
+        return {
+          id: params.term,
+          text: params.term,
+          newOption: true
+        }
+      }
+    });
+
+    $('.select-challenges').select2({
+      data : [],
+      placeholder: "",
+      allowClear: true,
+      tags : true,
+      createTag: function (params) {
+        return {
+          id: params.term,
+          text: params.term,
+          newOption: true
+        }
+      }
+    });
+    
+    
+    $('.select-src-port').select2({
+      data : [],
+      placeholder: "",
+      allowClear: true,
+      tags : true,
+      createTag: function (params) {
+        return {
+          id: params.term,
+          text: params.term,
+          newOption: true
+        }
+      }
+    });
+    
+    $('.select-dst-port').select2({
+      data : [],
+      placeholder: "",
+      allowClear: true,
+      tags : true,
+      createTag: function (params) {
+        return {
+          id: params.term,
+          text: params.term,
+          newOption: true
+        }
+      }
+    });
+
+// ajax call to get data for grid
+
+
+
+});
+
+  
+  </script>
+  
+
+
+
+
+
+
+<!-- search form submission -->
+
+<script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+(function () {
+  'use strict'
+
+  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+  var forms = document.querySelectorAll('.needs-validation')
+
+  // Loop over them and prevent submission
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    })
+})();
+</script>
+
+
+
+
+
+
+<script>
+
+
+
+
+  // getChartData();
+
+</script>
+
+<script>
+  $(function() {
+    // $("div#loader").hide();
+    $('input[name="datetimes"]').daterangepicker({
+      timePicker: true,
+      startDate: moment().startOf('hour'),
+      endDate: moment().startOf('hour').add(32, 'hour'),
+      locale: {
+        format: 'M/DD hh:mm A'
+      }
+    });
+  });
+  </script>
+
+
+<script>
+
+
+
+  $("button#apply_filter").on("click", function(event){
+    event.preventDefault();
+    event.stopPropagation();
+    $("div#loader").show();
+    
+let team_ip = teams.find(i => {
+  if(parseInt(i.id) === parseInt($('.select-teams').val())){
+    return i.ip
+  } 
+  })
+  let user_ip = users_data.find(i => {
+  if(parseInt(i.id) === parseInt($('.select-users').val())){
+    console.debug(i)
+    return i.ip
+  }
+  })
+  let challenge_ip = challenges.find(i => {
+  if(parseInt(i.id) === parseInt($('.select-challenges').val())){
+    console.debug(i)
+    return i.ip
+  }
+  })
+  let src_port = generatedSrcPorts.find(i => {
+  if(parseInt(i.id) === parseInt($('.select-src-port').val())){
+    console.debug(i)
+    return i.text
+  }
+  })
+  let dst_port = generatedDstPorts.find(i => {
+  if(parseInt(i.id) === parseInt($('.select-dst-port').val())){
+    console.debug(i)
+    return i.text
+  }
+  })
+    let postData = {
+      "team_id" : $('.select-teams').val(),
+      "user_id" : $('.select-users').val(),
+      "challenge_id" : $('.select-challenges').val(),
+      "src_id" : $('.select-src-port').val(),
+      "dst_id" : $('.select-dst-port').val(),
+      "team_ip" : team_ip?.ip || null,
+      "user_ip" : user_ip?.ip || null,
+      "challenge_ip" : challenge_ip?.ip || null,
+      "src_port_ip" : src_port?.text || null,
+      "dst_port_ip" : dst_port?.text || null,
+      "query" : $("#query").val().trim(),
+      "timeline" : {
+        "startDate" : `${$('input[name="datetimes"]').data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')}`,
+        "endDate" : `${$('input[name="datetimes"]').data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')}`,
+      }
+    }
+    is_filter_applied = true;
+    getFilterData(postData,status=true);
+  
+  })
+</script>
+<script>
+
+// if (total_pages > 10) {
+//   for (let i = 1; i <= 2; i++) {
+//     if (i === 1) {
+//       $("#pagination_block .last").before(`<li class="page-item" data-parent="${i}"><button class="page-link" data-page="${i}" >${i}</button></li>`);
+//     } else {
+//       $("#pagination_block .last").before(`<li class="page-item" data-parent="${i}"><button class="page-link" data-page="${i}">${i}</button></li>`);
+//     }
+//   }
+//   $("#pagination_block .last").before(`<li class="page-item disabled dots-1" data-parent="dots"><button class="page-link" data-page="dots">...</button></li>`);
+//   $("#pagination_block .last").before(`<li class="page-item disabled dots" data-parent="dots"><button class="page-link" data-page="dots">...</button></li>`);
+//   for (let i = total_pages - 1; i <= total_pages; i++) {
+//     $("#pagination_block .last").before(`<li class="page-item" data-parent="${i}"><button class="page-link" data-page="${i}">${i}</button></li>`);
+//   }
+// } else {
+//   for (let i = 1; i <= total_pages; i++) {
+//     if (i === 1) {
+//       $("#pagination_block .last").before(`<li class="page-item" data-parent="${i}"><button class="page-link" data-page="${i}" >${i}</button></li>`);
+//     } else {
+//       $("#pagination_block .last").before(`<li class="page-item" data-parent="${i}"><button class="page-link" data-page="${i}">${i}</button></li>`);
+//     }
+//   }
+// }
+
+
+  $(document).on("click", "#pagination_block button", function(event){
+    event.preventDefault();
+    event.stopPropagation();
+    current_page = $(this).data('page');
+    next_page = current_page;
+    previous_page = current_page;
+    console.debug({
+      "Current Page": current_page,
+      "Next Page": next_page,
+      "Previous Page": previous_page
+
+    })
+    if(current_page > 2){
+      if($("li.page-item.added").length){
+        $("li.page-item.added").remove();
+      }
+      if(current_page < total_pages/2){
+        $("#pagination_block .dots-1").before(`<li class="page-item added" data-parent="${current_page}"><button class="page-link" data-page="${current_page}">${current_page}</button></li>`);
+      }else{
+        if(current_page > total_pages-2){
+            $("#pagination_block .dots").after(`<li class="page-item added" data-parent="${(total_pages-current_page) == 0 ? total_pages-2 : current_page-1}"><button class="page-link" data-page="${(total_pages-current_page) == 0 ? total_pages-2 : current_page-1}">${(total_pages-current_page) == 0 ? total_pages-2 : current_page-1}</button></li>`);
+        } else{
+          $("#pagination_block .dots").after(`<li class="page-item added" data-parent="${current_page}"><button class="page-link" data-page="${current_page}">${current_page}</button></li>`);
+        } 
+      }
+    }
+    $(`li.page-item`).removeClass("active");
+    if($(this).data('next')){
+      $(`li.page-item[data-parent=${next_page}]`).addClass("active");
+      $(this).data("page", next_page);
+      $("#pagination_block .previous").data("page", previous_page);
+      if(next_page === 1){
+        $("#pagination_block .previous").attr("disabled", true);
+      }else{
+        $("#pagination_block .previous").attr("disabled", false);
+      }
+      if(next_page === total_pages){
+        $("#pagination_block .next").attr("disabled", true);
+      }else{
+        $("#pagination_block .next").attr("disabled", false);
+      }
+      next_page = current_page + 1;
+      previous_page = current_page +1;
+      current_page = current_page + 1;
+    }
+    if($(this).data('previous')){
+      $(`li.page-item[data-parent=${previous_page}]`).addClass("active");
+      $(this).data("page", next_page);
+      if(next_page === total_pages){
+        next_page  = total_pages;
+        $("#pagination_block .next").attr("disabled", true);
+      }else{
+        $("#pagination_block .next").attr("disabled", false);
+      }
+      if(next_page === 1){
+        $("#pagination_block .previous").attr("disabled", true);
+      }else{
+        $("#pagination_block .previous").attr("disabled", false);
+      }
+      $("#pagination_block .next").data("page", next_page);
+      next_page = current_page -1;
+      previous_page = current_page -1;
+      current_page = current_page - 1; 
+    }
+    if($(this).data('page')){
+      current_page = $(this).data('page');
+      $(`li.page-item[data-parent=${current_page}]`).addClass("active");
+      $(this).data("page", current_page);
+      if(current_page === 1){
+        $("#pagination_block .previous").attr("disabled", true);
+      }else{
+        $("#pagination_block .previous").attr("disabled", false);
+      }
+      if(current_page === total_pages){
+        $("#pagination_block .next").attr("disabled", true);
+      }else{
+        $("#pagination_block .next").attr("disabled", false);
+      }
+      $("#pagination_block .next").data("page", current_page + 1);
+      $("#pagination_block .previous").data("page", current_page - 1);
+    }
+    // console.debug({
+    //     "current_page" : current_page,
+    //     "next_page" : next_page,
+    //     "previous_page" : previous_page
+    //   });
+      let postData = {
+        "current_page" : current_page,
+        "next_page" : next_page,
+        "previous_page" : previous_page
+      };
+      if(is_filter_applied){
+
+                  
+        let team_ip = teams.find(i => {
+          if(parseInt(i.id) === parseInt($('.select-teams').val())){
+            return i.ip
+          } 
+          })
+          let user_ip = users_data.find(i => {
+          if(parseInt(i.id) === parseInt($('.select-users').val())){
+            console.debug(i)
+            return i.ip
+          }
+          })
+          let challenge_ip = challenges.find(i => {
+          if(parseInt(i.id) === parseInt($('.select-challenges').val())){
+            console.debug(i)
+            return i.ip
+          }
+          })
+          let src_port = generatedSrcPorts.find(i => {
+          if(parseInt(i.id) === parseInt($('.select-src-port').val())){
+            console.debug(i)
+            return i.text
+          }
+          })
+          let dst_port = generatedDstPorts.find(i => {
+          if(parseInt(i.id) === parseInt($('.select-dst-port').val())){
+            console.debug(i)
+            return i.text
+          }
+          })
+
+        postData = {
+          "current_page" : current_page,
+          "next_page" : next_page,
+          "previous_page" : previous_page,
+          "team_id" : $('.select-teams').val(),
+          "user_id" : $('.select-users').val(),
+          "challenge_id" : $('.select-challenges').val(),
+          "src_id" : $('.select-src-port').val(),
+          "dst_id" : $('.select-dst-port').val(),
+          "team_ip" : team_ip?.ip || null,
+          "user_ip" : user_ip?.ip || null,
+          "challenge_ip" : challenge_ip?.ip || null,
+          "src_port_ip" : src_port?.text || null,
+          "dst_port_ip" : dst_port?.text || null,
+          "query" : $("#query").val().trim(),
+          "timeline" : {
+            "startDate" : `${$('input[name="datetimes"]').data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')}`,
+            "endDate" : `${$('input[name="datetimes"]').data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss')}`,
+          }
+        }
+      } else{
+          postData = {
+            "current_page" : current_page,
+            "next_page" : next_page,
+            "previous_page" : previous_page
+         }
+      }
+
+    
+    // fetch data
+    is_filter_applied ? getFilterData(postData) : getData(postData);
+  })
+</script>
+
+{% endblock %}
+
+
+<script>
+
+  function showNotification(query){
+      return iziToast.show({
+      theme: 'dark',
+      icon: '<i></i>',
+      title: '',
+      message:`${query}`,
+      position: 'topCenter', // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter
+      progressBarColor: 'rgb(0, 255, 184)',
+      
+      onOpening: function(instance, toast){
+          console.info('callback abriu!');
+      },
+      onClosing: function(instance, toast, closedBy){
+          console.info('closedBy: ' + closedBy); // tells if it was closed by 'drag' or 'button'
+      }
+  });
+  }
+  
+  </script>
+  

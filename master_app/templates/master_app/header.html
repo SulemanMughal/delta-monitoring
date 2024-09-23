@@ -1,0 +1,92 @@
+{% load static  %}
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="header fixed-top d-flex align-items-center bg-color-blue-nav">
+
+    <div class="d-flex align-items-center justify-content-between">
+      <a href="{% url 'index' %}" class="logo d-flex align-items-center">
+        <!-- <img src="{% static 'assets/img/logo.png' %}" alt="" > -->
+        <span class="d-none d-lg-block text-white text-nowrap">Delta Monitoring</span>
+      </a>
+      {% if  request.user.is_authenticated %}
+      <i class="bi bi-list toggle-sidebar-btn  text-color-green"></i>
+      {% endif %}
+      {% comment %} 
+      <form action="{% url 'search_url' %}" method="GET">
+        <input type="text" placeholder="Search" name="query" value="{{ search_query }}" class="form-control  ms-5 w-100 search" style="height: 40px !important;" autocomplete="off">
+      </form>
+      {% endcomment %}
+    </div><!-- End Logo -->
+
+   
+    {% if  request.user.is_authenticated %}
+    <nav class="header-nav ms-auto">
+      <ul class="d-flex align-items-center">
+
+        
+        <li class="me-4">
+          <a class="dropdown-item d-flex align-items-center bg-color-green  py-2 px-4 text-color-dark fw-bold"  href="{% url 'live_url' %}">
+            <span >Live Monitoring</span>
+            <!-- <i class="bi bi-box-arrow-right ps-2"></i> -->
+          </a>
+        </li> 
+
+
+        <li class="nav-item dropdown pe-3">
+
+          <a class="nav-link nav-profile d-flex align-items-center pe-0  " href="#" data-bs-toggle="dropdown">
+            <i class="fa fa-user-circle fa-2x text-white"></i>
+            <span class="d-none d-md-block dropdown-toggle px-2 btn btn-primary bg-transparent border-0 text-white text-capitalize">{{ request.user.username }}</span>
+          </a><!-- End Profile Iamge Icon -->
+
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile bg-color-blue-nav">
+           
+
+            <li>
+              <a class="dropdown-item d-flex align-items-center text-white" href="{% url 'dashboard_url' %}">
+                <i class="bi bi-grid"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li class="d-none">
+              <a class="dropdown-item d-flex align-items-center text-white" href="{% url 'document_upload_url' %}">
+                <i class="bi bi-files"></i>
+                <span>File Upload</span>
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+
+            
+
+
+            <li>
+              <a   class="dropdown-item d-flex align-items-center text-danger" href="{% url 'user_logout' %}">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Sign Out</span>
+              </a>
+            </li>
+
+          </ul><!-- End Profile Dropdown Items -->
+        </li><!-- End Profile Nav -->
+
+      </ul>
+    </nav><!-- End Icons Navigation -->
+
+    {% else %}
+
+    <nav class="header-nav ms-auto">
+      <ul class="d-flex align-items-center">
+        <li class="me-4">
+          <a class="dropdown-item d-flex align-items-center bg-color-green  py-2 px-4 text-color-dark fw-bold"  href="{% url 'user_login' %}">
+            <span >Sign In</span>
+            <!-- <i class="bi bi-box-arrow-right ps-2"></i> -->
+          </a>
+        </li> 
+        </ul> 
+    </nav><!-- End Icons Navigation -->
+
+    {% endif %}
+
+  </header><!-- End Header -->

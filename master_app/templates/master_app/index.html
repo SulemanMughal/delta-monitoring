@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block styles %}
+<script src="{% static 'assets/js/web-animations.min.js' %}" ></script>
+
+
+
+<style>
+  
+
+  html{
+    overflow: hidden;
+  }
+
+  .star0 {
+    height: 1px;
+    width: 1px;
+    opacity: 1;
+    position: absolute;
+  }
+
+  .star1 {
+    height: 2px;
+    width: 2px;
+    border-radius: 50%;
+    opacity: 1;
+    position: absolute;
+  }
+
+  .star2 {
+    height: 3px;
+    width: 3px;
+    border-radius: 50%;
+    opacity: 1;
+    position: absolute;
+  }
+
+  .star3 {
+    height: 4px;
+    width: 4px;
+    border-radius: 50%;
+    opacity: 1;
+    position: absolute;
+  }
+
+  .star4 {
+    height: 4px;
+    width: 4px;
+    border-radius: 50%;
+    opacity: 1;
+    position: absolute;
+  }
+
+ 
+
+
+</style>
+
+{% endblock %}
+
+{% block content %}
+<div id="universe"></div>
+
+<section class="bsb-hero-1 px-3 bsb-overlay bsb-hover-pull">
+    <div class="container">
+      <div class="row justify-content-md-center">
+        <div class="col-12 col-md-11 col-lg-9 col-xl-7 col-xxl-6 text-center text-white">
+          <h2 class="display-3 fw-bold mb-3"><span id="element"></span></h2>
+          
+          <p class="lead mb-5">Know what's happening, even when you're not there.</p>
+          <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            {% if not request.user.is_authenticated %}
+                <a type="button" class="bg-color-green  py-2 px-4 text-color-dark fw-bold gap-3" href="{% url 'user_login' %}">Sign In</a>
+            {% endif %}
+            
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+
+  </section>
+{%  endblock %}
+
+
+{% block scripts %}
+<script src="{% static 'assets/js/typed.umd.js' %}"></script>
+
+<!-- Setup and start animation! -->
+<script>
+  var typed = new Typed('#element', {
+    strings: ['Delta Monitoring'],
+    typeSpeed: 50,
+  });
+</script>
+<script>
+  var layerCount = 5;
+  var starCount = 100;
+  var universe = document.getElementById('universe');
+  var w = window;
+  var d = document;
+  var e = d.documentElement;
+  var g = d.getElementsByTagName('body')[0];
+  var width = w.innerWidth || e.clientWidth || g.clientWidth;
+  var height = "1300";
+  for (var l = 0; l < layerCount; ++l) {
+    var layer = document.createElement('div');
+    layer.setAttribute('id', 'layer' + l);
+    layer.setAttribute('class', 'starfield');
+    universe.appendChild(layer);
+    for (var i = 0; i < starCount; ++i) {
+      var xpos = Math.round(Math.random() * width);
+      var ypos = Math.round(Math.random() * height);
+      for (var s = 0; s < 2; ++s) {
+        var star = document.createElement('div');
+        star.setAttribute('class', 'star' + l);
+        star.style.webkitTransform = 'translate(' + (xpos + s * width) + 'px, ' + ypos + 'px)';
+        star.style.transform = 'translate(' + (xpos + s * width) + 'px, ' + ypos + 'px)';
+        star.style.backgroundColor = 'white';//rgb(' + Math.round(Math.random() * 255) + ', ' + Math.round(Math.random() * 255) + ', ' + Math.round(Math.random() * 255) + ')';
+        layer.appendChild(star);
+      }
+    }
+    layer.animate([{transform: 'translate3d(0, 0, 0)'},
+                   {transform: 'translate3d(-' + width + 'px, 0, 0)'}],
+                  {duration: Math.pow(2, layerCount - l) * 1000, iterations: Infinity});
+  }
+</script>
+{% endblock %}

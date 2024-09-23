@@ -1,0 +1,195 @@
+{% extends 'master_app/base.html' %}
+{% load static %}
+
+
+{% block title %} Document List {% endblock %}
+
+
+
+  {% block styles %}
+
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/vendor/gridjs/mermaid.min.css' %}" />
+
+  <style>
+
+    body {
+        margin: 0;
+        font-family: neue-haas-unica,sans-serif;
+        font-size: .875rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #a4b1cd;
+        text-align: left;
+        background-color: #141d2b;
+    }
+    </style>
+
+
+  {% endblock %}
+
+{% block content %}
+
+<!-- {% include 'master_app/sections/filestats.html' %} -->
+
+
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h1>Files</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard_url' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Files</li>
+          </ol>
+        </nav>
+      </div>
+
+
+      <!-- <section class="section dashboard">
+        <div class="container-fluid">
+            <div class="row">
+            <div class="col-xxl-3 col-md-4">
+                <div class="card info-card sales-card">
+                <div class="card-body py-4">
+                    <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="fa-regular fa-file  "></i>
+                    </div>
+                    <div class="ps-3">
+                        <h6 class="">{{ documents.count }}</h6>
+                        <span class="text-primary small pt-1 fw-bold">Files</span>
+                    </div>
+                    </div>
+                </div>
+
+                </div>
+            </div>
+            </div>
+        </div>
+      </section> -->
+
+      <section class="section">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card bg-transparent">
+                        <div class="card-body py-4 bg-transparent">
+                            <div id="table"></div>
+                        </div>  
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+      </section>
+
+
+</main> 
+    
+
+{% endblock %}
+
+
+
+
+
+
+
+{% block scripts %}
+
+<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="{% static  'assets/vendor/gridjs/gridjs.production.min.js' %}"></script>
+<script src="{% static  'assets/js/utils.js' %}"></script>
+
+<script>
+
+    let documents_list = [];
+
+
+    // ajax request to get all documents
+    $.ajax({
+        type: 'GET',
+        url: "{% url 'document_list_json_url' %}",
+        success: function (response) {
+            let data = JSON.parse(response.documents);
+            data.forEach(element => {
+                documents_list.push([
+                    element.name,
+                    convertUTCtoLocal(element.uploaded_at),
+                    gridjs.html(`<a href="/files/details/${element.id}" class="btn btn-primary bg-transparent border-0 text-color-green btn-sm fw-bolder "> <i class="fa-solid fa-eye"></i> Details</a>`)
+                    // ,gridjs.html(`<button class="btn btn-primary bg-transparent border-0 text-primary fw-bolder fs-5" type="button" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop" aria-controls="staticBackdrop" data-target-id=${element.id} data-target-title=${element.name}> <i class ="fa-regular fa-circle-dot pe-2 " ></i> Stats </button>`)
+                ]);
+            });
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });
+
+    new gridjs.Grid({
+  columns: [ "Name", "Uploaded At", "Action"],
+  search: true,
+	sort: true,
+	pagination: {
+    limit: 20
+  },
+  data: () => {
+    return new Promise(resolve => {
+      setTimeout(() =>
+        resolve(documents_list), 500);
+    });
+  },
+	className: {
+    table: 'table-body'
+  },
+	language: {
+    'search': {
+      'placeholder': 'Search name...'
+    }
+  }
+}).render(document.getElementById("table"));
+
+</script>
+
+
+
+
+{% endblock %}
+
+
+
+<script>
+    // $(document).ready(function(){
+    //   // $('[data-bs-toggle="offcanvas"]').on('click', function () {
+    //   //   var target = $(this).data('target-id');
+    //   //   console.log(target);
+    //   //   $('#staticBackdrop').attr('data-target-id', target);
+    //   //   $('#staticBackdrop').offcanvas('show');
+    //   // });
+      
+    // });
+  
+    $(document).on('click', '[data-bs-toggle="offcanvas"]', function () {
+      var target = $(this).data('target-id');
+      let target_title = $(this).data('target-title');
+      // console.log(target);
+      // $('#staticBackdrop').attr('data-target-id', target);
+      $('#staticBackdropLabel').text(target_title + " Stats");
+      $.ajax({
+          type: 'GET',
+          url: `/files/stats/${target}/json`,
+          success: function (response) {
+            console.debug(response.logs_counter)
+            $('span#logs_counter').html(response.logs_counter);
+            $('span#os_counter').html(response.operating_system_counter);
+            $('span#city_counter').html(response.city_counter);
+            $('span#country_counter').html(response.country_counter);
+            $('span#coordinates_counter').html(response.locations_counter);
+            $('span#region_counter').html(response.region_counter);
+          },
+          error: function (error) {
+              console.log(error);
+          }
+      });
+    });
+  
+  </script>

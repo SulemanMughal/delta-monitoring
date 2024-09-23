@@ -1,0 +1,422 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Realtime{% endblock %}
+
+{% block styles %}
+
+<style>
+
+    body {
+        margin: 0;
+        font-family: neue-haas-unica,sans-serif;
+        font-size: .875rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #a4b1cd;
+        text-align: left;
+        background-color: #141d2b;
+    }
+    </style>
+  
+  
+  <!-- <link rel="stylesheet" type="text/css" href="{% static 'assets/vendor/gridjs/mermaid.min.css' %}" /> -->
+  
+
+    <!-- ag grid -->
+    <!-- <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
+    <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-balham.css"> -->
+    <script src="{% static 'assets/vendor/ag-grid/ag-grid-enterprise.min.js' %}" ></script>
+    
+
+    <style>
+.ag-theme-balham {
+    --ag-header-height: 50px;
+    --ag-foreground-color: #fff !important;
+    --ag-background-color: #1a2332;
+    --ag-header-foreground-color: #9fef00 !important;
+    --ag-header-background-color: #111927 !important;
+    --ag-odd-row-background-color: rgb(0, 0, 0, 0.03);
+    --ag-header-column-resize-handle-color: rgb(126, 46, 132);
+    --ag-border-color : #111927 !important ; 
+    --ag-font-size: 20px;
+    --ag-row-hover-color: #111927 !important;
+    /* --ag-font-family: monospace; */
+
+    /* --ag-card-shadow: 0 3px 4px black;
+    --ag-popup-shadow: 0 3px 4px #111927 !important; */
+    --ag-card-radius: 5px;
+    --ag-card-shadow: 0 10px 40px #111927;
+    --ag-popup-shadow: var(--ag-card-shadow);
+    --ag-tab-min-width: 350px;
+
+    /* icons */
+    --ag-icon-size : 20px;
+
+
+    /* input widgets */
+
+    --ag-borders-input: dotted 2px;
+    --ag-input-border-color: orange;
+
+    /* --ag-selected-row-background-color: red !important; */
+
+      /* header buttons selection */
+    /* --ag-control-panel-background-color: #CC222244; */
+      /* --ag-tab-selected-background-color: orange !important; */
+/* 
+    --ag-selected-tab-underline-color: deeppink;
+    --ag-selected-tab-underline-width: 2px;
+    --ag-selected-tab-underline-transition-speed: 0.5s;
+
+    --ag-side-bar-panel-width: 300px; */
+  
+}
+
+
+.ag-theme-balham .ag-header-cell {
+    font-size: 18px;
+}
+
+
+.ag-theme-balham .ag-text-field-input {
+    background-color: #1a2332 !important; /* light orange */
+    padding-top: 10px !important;
+}
+
+
+
+.ag-theme-balham .ag-text-field-input::placeholder {
+    color: rgb(155, 101, 1); /* darker orange */
+}
+
+.ag-theme-balham .ag-menu {
+    background-color: #111927; /* light purple */
+}
+
+.ag-theme-balham .ag-menu .ag-menu-option:hover {
+    background-color: #1a2332 !important; /* light purple */
+}
+
+
+.ag-theme-balham .ag-menu-header {
+    background-color: #1a2332; /* dark purple */
+}
+
+.ag-theme-balham .ag-menu-header .ag-icon {
+    color: white;
+}
+.ag-theme-balham .ag-tab-selected{
+  background-color: #111927 !important;
+  margin: 0px !important;
+}
+.ag-theme-balham .ag-column-select-header{
+  /* background-color: #111927 !important; */
+  margin-top: 15px !important;
+}
+.ag-theme-balham .ag-column-select-list{
+  padding-top: 15px !important;
+}
+
+
+
+
+.ag-theme-balham {
+  overflow-x: hidden !important;
+}
+
+div.ag-body-horizontal-scroll{
+  display: none !important;
+}
+    </style>
+  
+
+{% endblock %}
+
+{% block content %}
+<main id="main" class="main">
+  <div class="pagetitle">
+    <h1>Live Monitoring</h1>
+    <nav >
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard_url' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Live Monitoring</li>
+      </ol>
+    </nav>
+  </div><!-- End Page Title -->
+
+
+   
+    
+      <section class="section dashboard">
+        
+        
+
+        <div class="rows">
+          <div class="col">
+            <div id="chart">
+            </div>
+          </div>
+        </div>
+        
+        
+        <div class="row">
+          <div class="col-12">
+            <div class="card bg-transparent p-0">
+              <div class="card-body p-0 bg-transparent">
+                <div id="myGrid" style="height: 75vh; " class="ag-theme-balham"></div>
+              </div>  
+            </div>
+            
+          </div>
+        </div>
+      </section>
+</main>
+
+
+<!-- write complete htlm css to implement a realtime apex chart with dajngo web sockets -->
+
+
+
+
+
+{%  endblock %}
+
+
+{% block scripts %}
+
+
+<script src="{% static 'assets/js/jquery.min.js' %}"></script> 
+
+
+
+<script type="text/javascript" charset="utf-8">
+
+agGrid.LicenseManager.setLicenseKey('SHI_UK_on_behalf_of_Lenovo_Sweden_MultiApp_1Devs6_November_2019__MTU3Mjk5ODQwMDAwMA==e27a8fba6b8b1b40e95ee08e9e0db2cb');
+
+let gridApi;
+
+
+  const columnDefs = [
+    // {
+    //   headerName: "Row",
+    //   valueGetter: "node.rowIndex + 1",
+    //   sortable: true,
+    //   filter: true,
+    //   resizable: true,
+    //   width: 100,
+    //   sortingOrder: [ "desc"],
+    //   minWidth: 100, 
+    //   maxWidth: 100,
+    //     cellStyle: {
+    //       fontSize: '14px'
+    //     }
+
+    // },
+      {headerName: 'Src IP', field: 'src_ip', sortable: true, filter: true, resizable: true, width : 150, maxWidth: 150, minWidth: 150,
+        cellStyle: {
+          fontSize: '14px'
+        }},
+      {headerName: 'Src Port', field: 'src_port', sortable: true, filter: true, resizable: true, width : 130, minWidth: 130, maxWidth: 130,
+        cellStyle: {
+          fontSize: '14px'
+        }},
+      {headerName: 'Dst IP', field: 'dst_ip', sortable: true, filter: true, resizable: true, width : 150, maxWidth: 150, minWidth: 150,
+        cellStyle: {
+          fontSize: '14px'
+        }},
+      {headerName: 'Dst Port', field: 'dst_port', sortable: true, filter: true, resizable: true, width : 130, minWidth: 130, maxWidth: 130,
+        cellStyle: {
+          fontSize: '14px'
+        }},
+      {
+        headerName: 'Payload', 
+        field: 'payload', 
+        sortable: true, 
+        filter: true, 
+        resizable: true,
+        cellStyle: {
+          fontSize: '14px',
+          "wordBreak": "normal"
+        },
+        "wrapText": true,
+        "autoHeight": true,
+        
+      },
+  ];
+  const rowData = [
+  ];
+  const gridOptions = {
+      columnDefs: columnDefs,
+      rowData: rowData,
+      onGridReady(params) {
+        params.api.sizeColumnsToFit();
+      }
+  };
+  const eGridDiv = document.querySelector('#myGrid');
+  gridApi = agGrid.createGrid(eGridDiv, gridOptions);
+</script>
+
+<script>
+
+
+
+  function FixedSizeArray(maxSize) {
+      this.array = [];
+      this.maxSize = maxSize;
+  
+      this.push = function (element) {
+          this.array.push(element);
+          this.array.unshift(element)
+  
+          // Trim the array if it exceeds the maxSize
+          if (this.array.length > this.maxSize) {
+              this.array.shift();  // Remove the first element
+          }
+      };
+  
+      this.toArray = function () {
+          return this.array;
+      };
+  
+      this.length = function () {
+          return this.array.length;
+      };
+  }
+  
+    var lastDate = 0;
+    var data_chart = []
+    var TICKINTERVAL = 2000
+    let XAXISRANGE = 60*2000
+    
+    function getDayWiseTimeSeries(baseval, count, yrange) {
+      var i = 0;
+      while (i < count) {
+        var x = baseval;
+        // var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
+    
+        data_chart.push({
+          x, y
+        });
+        lastDate = baseval
+        baseval += TICKINTERVAL;
+        i++;
+      }
+    }
+    let initNumber = 10;
+    getDayWiseTimeSeries(new Date().getTime()-(initNumber-1)*TICKINTERVAL, initNumber, {
+      min: 0,
+      max: 0
+    })
+    
+    function getNewSeries(baseval, yrange) {
+      var newDate = baseval + TICKINTERVAL;
+      lastDate = newDate
+      for(var i = 0; i< data_chart.length - 10; i++) {
+        data_chart[i].x = newDate - XAXISRANGE - TICKINTERVAL
+        data_chart[i].y = 0
+      }
+    
+      data_chart.push({
+        x: newDate,
+        y: Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min
+      })
+    }
+    
+    function resetData(){
+      data_chart = data_chart.slice(data_chart.length - 10, data_chart.length);
+    }
+  </script>
+
+
+<script>
+    let data = [];
+    
+var options = {
+          series: [{
+          data: data_chart.slice()
+        }],
+          chart: {
+          id: 'realtime',
+          height: 350,
+          type: 'line',
+          animations: {
+            enabled: true,
+            easing: 'linear',
+            dynamicAnimation: {
+              speed: 1000
+            }
+          },
+          toolbar: {
+            show: false
+          },
+          zoom: {
+            enabled: false
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          curve: 'smooth'
+        },
+        title: {
+          text: 'Dynamic Updating Chart',
+          align: 'left'
+        },
+        markers: {
+          size: 0
+        },
+        xaxis: {
+          type: 'datetime',
+          range: XAXISRANGE,
+        },
+        yaxis: {
+          max: 100
+        },
+        legend: {
+          show: false
+        },
+        };
+
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+
+    var wsStart='ws://'
+    var endpoint=wsStart + window.location.host + "/ws/whole1/"
+    var socket = new WebSocket(endpoint)
+    socket.onopen =function(e){
+      console.log('open',e)
+      socket.send(1)
+    }
+    socket.onmessage=function(e){
+    data = [...JSON.parse(e.data), ...data]  
+    data = data.slice(0, 1000)
+    gridApi.setGridOption('rowData', data)
+    getNewSeries(lastDate, {
+      min: 10,
+      max: 120
+    })
+    chart.updateSeries([{
+      data: data_chart
+    }])
+    setTimeout(function(){ socket.send(1); }, 2000);    
+    }
+</script>
+
+{% endblock %}
+
+<script>
+  $(document).ready(function() {
+        window.setInterval(function () {
+        getNewSeries(lastDate, {
+          min: 10,
+          max: 90
+        })
+      
+        chart.updateSeries([{
+          data: data_chart
+        }])
+      }, 1000)
+} );
+</script>
